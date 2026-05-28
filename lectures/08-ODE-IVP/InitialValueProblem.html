@@ -509,7 +509,7 @@
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#first-order-algorithm-the-euler-algorithm">First order algorithm: The Euler algorithm</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#second-order-algorithm-the-heun-method">Second order algorithm : The Heun method</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fourth-order-algorithm-runge-kutta-algorithm-rk4">Fourth order algorithm: Runge-Kutta algorithm RK4</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#implementation-discussion">Implementation discussion</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#implementation-discussion-introduction-to-c-templates">Implementation discussion: introduction to c++ templates</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example-implementing-the-euler-method-for-a-one-dimensional-problem">Example: implementing the Euler method for a one dimensional problem</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-lorenz-model-and-attractor">The Lorenz model and attractor</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#exercise-solve-using-the-euler-method">Exercise : Solve using the Euler method</a></li>
@@ -552,8 +552,8 @@
 <p>In mathematics, an ordinary differential equation (ODE) is a differential equation (DE) dependent on only a single independent variable. As with other DE, its unknown(s) consists of one (or more) function(s) and involves the derivatives of those functions The term “ordinary” is used in contrast with partial differential equations which may be with respect to more than one independent variable.(see <a class="reference external" href="https://en.wikipedia.org/wiki/Ordinary_differential_equation?useskin=vector">https://en.wikipedia.org/wiki/Ordinary_differential_equation?useskin=vector</a>)</p>
 <p><a class="reference external" href="https://en.wikipedia.org/wiki/Initial_value_problem?useskin=vector">An initial value problem</a>, IVP, is a a problem specified by an ordinary differential equation and its initial conditions.</p>
 <p>You have been already solving a differential equation: The second Newton law</p>
-<div class="amsmath math notranslate nohighlight" id="equation-527cb8d1-79e8-46df-b2f2-e3d332c3610b">
-<span class="eqno">(45)<a class="headerlink" href="#equation-527cb8d1-79e8-46df-b2f2-e3d332c3610b" title="Permalink to this equation">#</a></span>\[\begin{equation}
+<div class="amsmath math notranslate nohighlight" id="equation-3bd4dfcb-1164-4541-8258-c2114f07f1a9">
+<span class="eqno">(44)<a class="headerlink" href="#equation-3bd4dfcb-1164-4541-8258-c2114f07f1a9" title="Permalink to this equation">#</a></span>\[\begin{equation}
 ma = m\frac{dv}{dt} = m\frac{d^2x}{dt^2} = \sum F = f(t, x, v),
 \end{equation}\]</div>
 <p>Can be seen as a first order differential equation (when talking about <span class="math notranslate nohighlight">\(v\)</span>) or as a second order differential equation (regarding <span class="math notranslate nohighlight">\(x\)</span>).</p>
@@ -571,13 +571,13 @@ ma = m\frac{dv}{dt} = m\frac{d^2x}{dt^2} = \sum F = f(t, x, v),
 <li><p><a class="reference external" href="https://www.youtube.com/watch?v=ly4S0oi3Yz8&amp;amp;t=0s">Partial differential equations intro</a></p></li>
 </ul>
 <p>A numerical solution for and IVP corresponds to finding an algorithm that allows you to move from time <span class="math notranslate nohighlight">\(t\)</span> to time <span class="math notranslate nohighlight">\(t+\delta t\)</span>, given a time discretization. It is assumed that the general problem is represented as</p>
-<div class="amsmath math notranslate nohighlight" id="equation-e348e43b-7108-4fa2-9578-fb0c3241788f">
-<span class="eqno">(46)<a class="headerlink" href="#equation-e348e43b-7108-4fa2-9578-fb0c3241788f" title="Permalink to this equation">#</a></span>\[\begin{equation}
+<div class="amsmath math notranslate nohighlight" id="equation-04a97c57-6403-4119-afa6-13af090eada0">
+<span class="eqno">(45)<a class="headerlink" href="#equation-04a97c57-6403-4119-afa6-13af090eada0" title="Permalink to this equation">#</a></span>\[\begin{equation}
 \dot y = \frac{dy}{dt} = f(t, y),
 \end{equation}\]</div>
 <p>where <span class="math notranslate nohighlight">\(y\)</span> represents the state of the system. All linear differential equations of any order can be cast to this form by introducing auxiliary derivatives, so the problem becomes vectorial, but its form remains</p>
-<div class="amsmath math notranslate nohighlight" id="equation-ec38fc7f-8ff3-4b3b-a962-4e5516cb69b3">
-<span class="eqno">(47)<a class="headerlink" href="#equation-ec38fc7f-8ff3-4b3b-a962-4e5516cb69b3" title="Permalink to this equation">#</a></span>\[\begin{equation}
+<div class="amsmath math notranslate nohighlight" id="equation-e0103d7b-9433-4555-8854-24366e28c0d3">
+<span class="eqno">(46)<a class="headerlink" href="#equation-e0103d7b-9433-4555-8854-24366e28c0d3" title="Permalink to this equation">#</a></span>\[\begin{equation}
 \frac{d\vec y}{dt} = \vec f(t, \vec y).
 \end{equation}\]</div>
 <p>So the key question is how to go numerically from <span class="math notranslate nohighlight">\(\vec y(t)\)</span> to <span class="math notranslate nohighlight">\(\vec y(t+\delta t)\)</span>. There are several algorithms, with both advantages and disadvantages (in sinplicity, precision, stability, etc), to do so. Here we will see Euler algorithm which is the most straight forward (but lacks precision and stability), and later  one of the most common, the Runge-Kutta. After that, specific algorithms for second order equations will be discussed (like Leap-Frog and Verlet), and, finally some numerical libraries will be shown.</p>
@@ -585,21 +585,21 @@ ma = m\frac{dv}{dt} = m\frac{d^2x}{dt^2} = \sum F = f(t, x, v),
 <section id="first-order-algorithm-the-euler-algorithm">
 <h2>First order algorithm: The Euler algorithm<a class="headerlink" href="#first-order-algorithm-the-euler-algorithm" title="Link to this heading">#</a></h2>
 <p>The <a class="reference external" href="https://en.wikipedia.org/wiki/Euler_method?useskin=vector">Euler method</a> is based on the forward derivative:</p>
-<div class="amsmath math notranslate nohighlight" id="equation-302a541a-3300-47f9-b37c-79bacddaac5d">
-<span class="eqno">(48)<a class="headerlink" href="#equation-302a541a-3300-47f9-b37c-79bacddaac5d" title="Permalink to this equation">#</a></span>\[\begin{equation}
+<div class="amsmath math notranslate nohighlight" id="equation-92ebc71e-c27d-4d03-9711-fa3dac5e4293">
+<span class="eqno">(47)<a class="headerlink" href="#equation-92ebc71e-c27d-4d03-9711-fa3dac5e4293" title="Permalink to this equation">#</a></span>\[\begin{equation}
 \frac{d\vec y}{dt} = \frac{\vec y(t+h) - \vec y(t)}{h} + O(h).
 \end{equation}\]</div>
 <p>Here, <span class="math notranslate nohighlight">\(h = \delta t\)</span>. Since we are looking for <span class="math notranslate nohighlight">\(f(t + \delta t)\)</span>, and we actually know the derivatives (they are given by the differential equation we want to solve), then</p>
-<div class="amsmath math notranslate nohighlight" id="equation-334c7b9d-f573-4c3c-9ae4-a6d294373653">
-<span class="eqno">(49)<a class="headerlink" href="#equation-334c7b9d-f573-4c3c-9ae4-a6d294373653" title="Permalink to this equation">#</a></span>\[\begin{align}
+<div class="amsmath math notranslate nohighlight" id="equation-383d7f88-e60e-4fc2-9939-c510a1194dae">
+<span class="eqno">(48)<a class="headerlink" href="#equation-383d7f88-e60e-4fc2-9939-c510a1194dae" title="Permalink to this equation">#</a></span>\[\begin{align}
 \vec y(t+\delta t) &amp;= \vec y(t) + \delta t \frac{d \vec y}{dt} + O(\delta t^2), \\
 &amp;= \vec y(t) + \delta t \vec f(t, \vec y) + O(\delta  t^2),
 \end{align}\]</div>
 <p>Where <span class="math notranslate nohighlight">\(\vec f(t, \vec y) = d\vec y/dt\)</span> is just the function returning the derivatives. As you can see , basically the Euler method is performing a linear extrapolation.</p>
-<div style="text-align: center;">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Euler_method.svg/440px-Euler_method.svg.png" alt="Image Description" width="400">
-    <figcaption>From: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Euler_method.svg/440px-Euler_method.svg.png"</figcaption>
-</div>
+<figure class="align-center">
+<a class="bg-primary reference internal image-reference" href="https://leifh.folk.ntnu.no/teaching/tkt4140/fig-ch1/7.png"><img alt="" class="bg-primary" src="https://leifh.folk.ntnu.no/teaching/tkt4140/fig-ch1/7.png" style="width: 80%;" />
+</a>
+</figure>
 <p>Although easy to implement, it lacks stability, and its low order (locally <span class="math notranslate nohighlight">\(O(\delta t^2)\)</span>, globally <span class="math notranslate nohighlight">\(O(N\delta t^2) = O(\delta t)\)</span>) implies a very small <span class="math notranslate nohighlight">\(\delta t\)</span>, so many steps to solve the IVP on a given time interval.</p>
 <blockquote>
 <div><p>Check <a class="reference external" href="https://www.geogebra.org/m/b5W3yTgs">https://www.geogebra.org/m/b5W3yTgs</a> and <a class="reference external" href="https://www.desmos.com/calculator/0i0oebdu6j">https://www.desmos.com/calculator/0i0oebdu6j</a></p>
@@ -608,11 +608,14 @@ ma = m\frac{dv}{dt} = m\frac{d^2x}{dt^2} = \sum F = f(t, x, v),
 <section id="second-order-algorithm-the-heun-method">
 <h2>Second order algorithm : The Heun method<a class="headerlink" href="#second-order-algorithm-the-heun-method" title="Link to this heading">#</a></h2>
 <p><a class="reference external" href="https://en.wikipedia.org/wiki/Heun%27s_method?useskin=vector">https://en.wikipedia.org/wiki/Heun’s_method?useskin=vector</a></p>
-<a class="reference internal image-reference" href="https://upload.wikimedia.org/wikipedia/commons/5/52/Heun%27s_Method_Diagram.jpg"><img alt="https://upload.wikimedia.org/wikipedia/commons/5/52/Heun%27s_Method_Diagram.jpg" class="align-center" src="https://upload.wikimedia.org/wikipedia/commons/5/52/Heun%27s_Method_Diagram.jpg" style="width: 50%;" /></a>
+<figure class="align-center">
+<a class="bg-primary reference internal image-reference" href="https://upload.wikimedia.org/wikipedia/commons/5/52/Heun%27s_Method_Diagram.jpg"><img alt="" class="bg-primary" src="https://upload.wikimedia.org/wikipedia/commons/5/52/Heun%27s_Method_Diagram.jpg" style="width: 80%;" />
+</a>
+</figure>
 <p>The Heun method, also known as the improved Euler method, mid-point method, or second order Runge-Kuta mehtod, is an improvement over the initial Euler method.</p>
 <p>Here, you need to compute intermediate values to estimate better the final value at each step:</p>
-<div class="amsmath math notranslate nohighlight" id="equation-aca8eb3f-3057-481c-8a30-70d91449916e">
-<span class="eqno">(50)<a class="headerlink" href="#equation-aca8eb3f-3057-481c-8a30-70d91449916e" title="Permalink to this equation">#</a></span>\[\begin{align}
+<div class="amsmath math notranslate nohighlight" id="equation-2565b791-dfce-4231-a847-d6b88e52164b">
+<span class="eqno">(49)<a class="headerlink" href="#equation-2565b791-dfce-4231-a847-d6b88e52164b" title="Permalink to this equation">#</a></span>\[\begin{align}
 \vec k_{1i} &amp;= f(t_i, \vec y_i),\\
 \vec k_{2i} &amp;= f(t_i + h, \vec y_i + h k_{1i}),\\
 \vec y_{i+1} &amp;= \vec y_i + \frac{h}{2}\left[\vec k_{1i} + \vec k_{2i} \right].
@@ -625,17 +628,17 @@ ma = m\frac{dv}{dt} = m\frac{d^2x}{dt^2} = \sum F = f(t, x, v),
 <h2>Fourth order algorithm: Runge-Kutta algorithm RK4<a class="headerlink" href="#fourth-order-algorithm-runge-kutta-algorithm-rk4" title="Link to this heading">#</a></h2>
 <p>Here, we will study the typical <a class="reference external" href="https://en.wikipedia.org/wiki/Runge%E2%80%93Kutta_methods">Runge-Kutta method</a> of order 4, for N coupled linear differential equations. This is much better than simple Euler. The price to pay is to evaluate the derivatives four times per time step.</p>
 <div style="text-align: center;">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Runge-Kutta_slopes.svg/600px-Runge-Kutta_slopes.svg.png" alt="Image Description" width="600">
-    <figcaption>From: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Runge-Kutta_slopes.svg/600px-Runge-Kutta_slopes.svg.png"</figcaption>
+    <img src="https://upload.wikimedia.org/wikipedia/commons/7/7e/Runge-Kutta_slopes.svg" alt="Image Description" width="600">
+    <figcaption>From: "https://upload.wikimedia.org/wikipedia/commons/7/7e/Runge-Kutta_slopes.svg"</figcaption>
 </div>
 <p>For the RK4 algorithm , we can compute the evolution as</p>
-<div class="amsmath math notranslate nohighlight" id="equation-96dcaa6b-49f4-4a70-a5c5-322e32b9b7b9">
-<span class="eqno">(51)<a class="headerlink" href="#equation-96dcaa6b-49f4-4a70-a5c5-322e32b9b7b9" title="Permalink to this equation">#</a></span>\[\begin{equation}
+<div class="amsmath math notranslate nohighlight" id="equation-bbd68750-5db7-4963-b323-f59acee20714">
+<span class="eqno">(50)<a class="headerlink" href="#equation-bbd68750-5db7-4963-b323-f59acee20714" title="Permalink to this equation">#</a></span>\[\begin{equation}
 \vec y(t+\delta t) = \vec y (t) + \frac{h}{6}(\vec k_1 + 2\vec k_2 + 2\vec k_3 + \vec k_4) + O(\delta t^5),
 \end{equation}\]</div>
 <p>with the <span class="math notranslate nohighlight">\(\vec k_i\)</span> functions evaluating the derivatives at different stages</p>
-<div class="amsmath math notranslate nohighlight" id="equation-94f8e4bb-f8c7-4140-b720-271420305566">
-<span class="eqno">(52)<a class="headerlink" href="#equation-94f8e4bb-f8c7-4140-b720-271420305566" title="Permalink to this equation">#</a></span>\[\begin{align}
+<div class="amsmath math notranslate nohighlight" id="equation-e0097bef-9bf7-473a-80f7-d6a614818bc7">
+<span class="eqno">(51)<a class="headerlink" href="#equation-e0097bef-9bf7-473a-80f7-d6a614818bc7" title="Permalink to this equation">#</a></span>\[\begin{align}
 \vec k_1 &amp;= \vec f(t, \vec y(t)),\\
 \vec k_2 &amp;= \vec f(t + \frac{h}{2}, \vec y(t) + h\frac{\vec k_1}{2}),\\
 \vec k_3 &amp;= \vec f(t + \frac{h}{2}, \vec y(t) + h\frac{\vec k_2}{2}),\\
@@ -646,8 +649,8 @@ ma = m\frac{dv}{dt} = m\frac{d^2x}{dt^2} = \sum F = f(t, x, v),
 <div><p>See <a class="reference external" href="https://www.geogebra.org/m/hvEzUcDF">https://www.geogebra.org/m/hvEzUcDF</a></p>
 </div></blockquote>
 </section>
-<section id="implementation-discussion">
-<h2>Implementation discussion<a class="headerlink" href="#implementation-discussion" title="Link to this heading">#</a></h2>
+<section id="implementation-discussion-introduction-to-c-templates">
+<h2>Implementation discussion: introduction to c++ templates<a class="headerlink" href="#implementation-discussion-introduction-to-c-templates" title="Link to this heading">#</a></h2>
 <p>To implement any of the following approaches, please think about the requirements for the function to do that, before writing any code. Like:</p>
 <ul class="simple">
 <li><p>It needs to receive the initial and final times, plus the time step.</p></li>
@@ -707,8 +710,7 @@ ma = m\frac{dv}{dt} = m\frac{d^2x}{dt^2} = \sum F = f(t, x, v),
 <span class="w">        </span><span class="n">fderiv</span><span class="p">(</span><span class="n">s</span><span class="p">,</span><span class="w"> </span><span class="n">dsdt</span><span class="p">,</span><span class="w"> </span><span class="n">t</span><span class="p">);</span>
 
 <span class="w">        </span><span class="c1">// compute new state. NOTE: Not using components, assuming valarray or similar</span>
-<span class="w">        </span><span class="n">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">dt</span><span class="o">*</span><span class="n">dsdt</span><span class="p">;</span><span class="w"> </span><span class="c1">// Euler</span>
-
+<span class="w"> </span>
 <span class="w">        </span><span class="c1">// write new state</span>
 <span class="w">        </span><span class="n">writer</span><span class="p">(</span><span class="n">s</span><span class="p">,</span><span class="w"> </span><span class="n">t</span><span class="p">);</span>
 <span class="w">      </span><span class="p">}</span>
@@ -750,9 +752,16 @@ ma = m\frac{dv}{dt} = m\frac{d^2x}{dt^2} = \sum F = f(t, x, v),
 
 <span class="kt">void</span><span class="w"> </span><span class="nf">fderiv</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">state_t</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="n">state_t</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">dydt</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">t</span><span class="p">)</span>
 <span class="p">{</span>
-<span class="w">    </span><span class="n">dydt</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">R</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+<span class="w">    </span>
 <span class="p">}</span>
 </pre></div>
+</div>
+<div class="exercise admonition" id="lectures/08-ODE-IVP/InitialValueProblem-exercise-0">
+
+<p class="admonition-title"><span class="caption-number">Exercise 18 </span></p>
+<section id="exercise-content">
+<p>Complete the code and solve the system for several <span class="math notranslate nohighlight">\(r\)</span> values.</p>
+</section>
 </div>
 </section>
 <section id="the-lorenz-model-and-attractor">
@@ -763,8 +772,8 @@ ma = m\frac{dv}{dt} = m\frac{d^2x}{dt^2} = \sum F = f(t, x, v),
     <figcaption>From: "https://upload.wikimedia.org/wikipedia/commons/1/13/A_Trajectory_Through_Phase_Space_in_a_Lorenz_Attractor.gif"</figcaption>
 </div>
 <p>It is represented as the following set of coupled equations:</p>
-<div class="amsmath math notranslate nohighlight" id="equation-39bb18ac-4fc2-4bdc-9dd5-72a2cb9a0a8c">
-<span class="eqno">(53)<a class="headerlink" href="#equation-39bb18ac-4fc2-4bdc-9dd5-72a2cb9a0a8c" title="Permalink to this equation">#</a></span>\[\begin{align}
+<div class="amsmath math notranslate nohighlight" id="equation-f48d08b2-85f9-4b6a-87a0-24240ac0ead1">
+<span class="eqno">(52)<a class="headerlink" href="#equation-f48d08b2-85f9-4b6a-87a0-24240ac0ead1" title="Permalink to this equation">#</a></span>\[\begin{align}
 \frac{dx}{dt} = \sigma(y-x),\\
 \frac{dy}{dt} = x(\rho  - z) - y, \\
 \frac{dz}{dt} = xy - \beta z.
@@ -782,14 +791,14 @@ ma = m\frac{dv}{dt} = m\frac{d^2x}{dt^2} = \sum F = f(t, x, v),
 <section id="solving-a-second-order-differential-equation">
 <h2>Solving a second order differential equation<a class="headerlink" href="#solving-a-second-order-differential-equation" title="Link to this heading">#</a></h2>
 <p>A typical second order example is the famous harmonic oscillator, described by</p>
-<div class="amsmath math notranslate nohighlight" id="equation-1e62cc9c-0865-45f9-ac21-32ce2b779499">
-<span class="eqno">(54)<a class="headerlink" href="#equation-1e62cc9c-0865-45f9-ac21-32ce2b779499" title="Permalink to this equation">#</a></span>\[\begin{equation}
+<div class="amsmath math notranslate nohighlight" id="equation-da7f4418-877d-4023-b7a2-1069952788c7">
+<span class="eqno">(53)<a class="headerlink" href="#equation-da7f4418-877d-4023-b7a2-1069952788c7" title="Permalink to this equation">#</a></span>\[\begin{equation}
 \frac{d^2x}{dt^2} + \omega^2 x = 0,
 \end{equation}\]</div>
 <p>which can be transformed into a system of 2 differential equations using the
 velocity, <span class="math notranslate nohighlight">\(v = dx/dt\)</span>, as <span class="math notranslate nohighlight">\(\vec y = (y_0, y_1) = (x, dx/dt) = (x, v)\)</span>,</p>
-<div class="amsmath math notranslate nohighlight" id="equation-24358e15-e27a-4b56-a6ce-55b46a5e50ae">
-<span class="eqno">(55)<a class="headerlink" href="#equation-24358e15-e27a-4b56-a6ce-55b46a5e50ae" title="Permalink to this equation">#</a></span>\[\begin{align}
+<div class="amsmath math notranslate nohighlight" id="equation-b2b076e0-28c3-4f19-8727-7b14e86a9dc5">
+<span class="eqno">(54)<a class="headerlink" href="#equation-b2b076e0-28c3-4f19-8727-7b14e86a9dc5" title="Permalink to this equation">#</a></span>\[\begin{align}
 \frac{dy_0}{dt} &amp;= \frac{dx}{dt} = v = y_1\\
 \frac{dy_1}{dt} &amp;= \frac{dv}{dt} = -\omega^2 x = -\omega^2 y_0.
 \end{align}\]</div>
@@ -1191,7 +1200,7 @@ leap-frog or verlet integration algorithms. This will be done in the next chapte
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#first-order-algorithm-the-euler-algorithm">First order algorithm: The Euler algorithm</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#second-order-algorithm-the-heun-method">Second order algorithm : The Heun method</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fourth-order-algorithm-runge-kutta-algorithm-rk4">Fourth order algorithm: Runge-Kutta algorithm RK4</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#implementation-discussion">Implementation discussion</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#implementation-discussion-introduction-to-c-templates">Implementation discussion: introduction to c++ templates</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example-implementing-the-euler-method-for-a-one-dimensional-problem">Example: implementing the Euler method for a one dimensional problem</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-lorenz-model-and-attractor">The Lorenz model and attractor</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#exercise-solve-using-the-euler-method">Exercise : Solve using the Euler method</a></li>

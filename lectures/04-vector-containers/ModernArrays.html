@@ -551,14 +551,16 @@ eigen vectors.</p></li>
 <li><p>Manipulate memory contents and program close to the metal.</p></li>
 <li><p>…</p></li>
 </ul>
-<a class="reference internal image-reference" href="../../_images/array.png"><img alt="../../_images/array.png" class="align-center" src="../../_images/array.png" style="width: 90%;" /></a>
+<a class="reference internal image-reference" href="../../_images/array.png"><img alt="../../_images/array.png" class="align-center" src="../../_images/array.png" style="width: 90%;" />
+</a>
 <p>There are many more data structs or <a class="reference external" href="https://en.cppreference.com/w/cpp/container">containers</a>: lists, dictionaries(maps), queue, binary trees, etc (see
 <a class="reference external" href="https://www.cs.usfca.edu/~galles/visualization/Algorithms.html">https://www.cs.usfca.edu/~galles/visualization/Algorithms.html</a>). For c++ you can check <a class="reference external" href="https://en.cppreference.com/cpp/container">https://en.cppreference.com/cpp/container</a>. Arrays, in
 particular, are very fast to access and retrieve data from memory. But they are
 not fast if you need to insert and delete data in the middle. In general, for
 scientific computing, arrays are the default data struct, but you need always to
 consider which one would be the best for your case. You can check several c++ containeers at: <a class="reference external" href="https://hackingcpp.com/cpp/std/containers">https://hackingcpp.com/cpp/std/containers</a></p>
-<a class="reference internal image-reference" href="https://hackingcpp.com/cpp/std/sequence_containers_crop.png"><img alt="https://hackingcpp.com/cpp/std/sequence_containers_crop.png" class="align-center" src="https://hackingcpp.com/cpp/std/sequence_containers_crop.png" style="width: 70%;" /></a>
+<a class="reference internal image-reference" href="https://hackingcpp.com/cpp/std/sequence_containers_crop.png"><img alt="https://hackingcpp.com/cpp/std/sequence_containers_crop.png" class="align-center" src="https://hackingcpp.com/cpp/std/sequence_containers_crop.png" style="width: 70%;" />
+</a>
 <p>Since c++11 it is possible to use modern data structs that are equivalent to the
 primitive data arrays but give a better user interface, also handling
 automatically the memory. Although there are two analog structures, <a class="reference external" href="https://en.cppreference.com/w/cpp/container/array">std::array</a>
@@ -571,13 +573,16 @@ block memory block that can be accessed very fast: <a class="reference external"
     <figcaption>From: "https://hackingcpp.com/cpp/std/vector.png"</figcaption>
 </div><section id="the-cache-role">
 <h2>The cache role<a class="headerlink" href="#the-cache-role" title="Link to this heading">#</a></h2>
-<img alt="../../_images/m1pro.jpg" src="../../_images/m1pro.jpg" />
+<a class="reference internal image-reference" href="../../_images/m1pro.jpg"><img alt="../../_images/m1pro.jpg" class="align-center" src="../../_images/m1pro.jpg" style="width: 70%;" />
+</a>
 <p><a class="reference external" href="https://planetscale.com/blog/caching">https://planetscale.com/blog/caching</a></p>
-<a class="reference internal image-reference" href="../../_images/cache.png"><img alt="../../_images/cache.png" class="align-center" src="../../_images/cache.png" style="width: 70%;" /></a>
+<a class="reference internal image-reference" href="../../_images/cache.png"><img alt="../../_images/cache.png" class="align-center" src="../../_images/cache.png" style="width: 70%;" />
+</a>
 </section>
 <section id="same-memory-block-different-interfaces">
 <h2>Same memory block, different interfaces<a class="headerlink" href="#same-memory-block-different-interfaces" title="Link to this heading">#</a></h2>
-<a class="reference internal image-reference" href="../../_images/array_array_vector.png"><img alt="../../_images/array_array_vector.png" class="align-center" src="../../_images/array_array_vector.png" style="width: 90%;" /></a>
+<a class="reference internal image-reference" href="../../_images/array_array_vector.png"><img alt="../../_images/array_array_vector.png" class="align-center" src="../../_images/array_array_vector.png" style="width: 90%;" />
+</a>
 </section>
 <section id="array-and-vector-example-visualized-in-a-debugger">
 <h2>Array and vector: Example visualized in a debugger<a class="headerlink" href="#array-and-vector-example-visualized-in-a-debugger" title="Link to this heading">#</a></h2>
@@ -686,15 +691,16 @@ info here:</p>
 use <code class="docutils literal notranslate"><span class="pre">vectorname.data()</span></code>, that returns a pointer to the first internal element. Only use this when sure.</p>
 </div>
 <figure class="align-center">
-<a class="reference internal image-reference" href="https://hackingcpp.com/cpp/std/vector.png"><img alt="https://hackingcpp.com/cpp/std/vector.png" src="https://hackingcpp.com/cpp/std/vector.png" style="width: 80%;" /></a>
+<a class="reference internal image-reference" href="https://hackingcpp.com/cpp/std/vector.png"><img alt="https://hackingcpp.com/cpp/std/vector.png" src="https://hackingcpp.com/cpp/std/vector.png" style="width: 80%;" />
+</a>
 </figure>
 <div class="exercise admonition" id="lectures/04-vector-containers/ModernArrays-exercise-3">
 
 <p class="admonition-title"><span class="caption-number">Exercise 10 </span> (Vector initialization)</p>
 <section id="exercise-content">
 <p>Declare a vector of double whose size is read from the command line as an argument. Fill it as</p>
-<div class="amsmath math notranslate nohighlight" id="equation-8820e866-ab9f-4599-b715-d87070aca15f">
-<span class="eqno">(27)<a class="headerlink" href="#equation-8820e866-ab9f-4599-b715-d87070aca15f" title="Permalink to this equation">#</a></span>\[\begin{equation}
+<div class="amsmath math notranslate nohighlight" id="equation-6f1dfb97-67e6-437e-950c-0694aacc19bd">
+<span class="eqno">(27)<a class="headerlink" href="#equation-6f1dfb97-67e6-437e-950c-0694aacc19bd" title="Permalink to this equation">#</a></span>\[\begin{equation}
 x[i] = i
 \end{equation}\]</div>
 <p>Compute the average.</p>
@@ -756,8 +762,8 @@ vector.</p>
 <li><p>Compute the argmin (index of the min) of a vector</p></li>
 <li><p>Compute the argmax (index of the max) of a vector</p></li>
 <li><p>Compute the pnorm</p>
-<div class="amsmath math notranslate nohighlight" id="equation-b8bc2459-0cf2-44f3-8043-ab7dda68bcdd">
-<span class="eqno">(28)<a class="headerlink" href="#equation-b8bc2459-0cf2-44f3-8043-ab7dda68bcdd" title="Permalink to this equation">#</a></span>\[\begin{equation}
+<div class="amsmath math notranslate nohighlight" id="equation-d276ed47-b0c0-4738-a239-201060f53fa1">
+<span class="eqno">(28)<a class="headerlink" href="#equation-d276ed47-b0c0-4738-a239-201060f53fa1" title="Permalink to this equation">#</a></span>\[\begin{equation}
 \left(\sum_{i} x_{i}^{p}\right)^{1/p} \ .
 \end{equation}\]</div>
 </li>

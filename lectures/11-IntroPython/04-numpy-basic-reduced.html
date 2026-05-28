@@ -572,7 +572,8 @@ a2 = [0.0, -0.9, 1, -3, 9, ... , 90]
 u = sin(v)
 ? in the context of vectorial computing, it would mean to apply the function <code class="docutils literal notranslate"><span class="pre">sin</span></code> to every component of the vector <code class="docutils literal notranslate"><span class="pre">v</span></code>, therefore <span class="math notranslate nohighlight">\(u_i = \sin(v_i)\)</span>. In general, given a function <span class="math notranslate nohighlight">\(f\)</span>, the expression <span class="math notranslate nohighlight">\(u = f(v)\)</span> means <span class="math notranslate nohighlight">\(u_i = f(v_i)\)</span>. Numpy allows for this kind of computing. What would be the meaning of
 u = v^2*cos(v)*e^v + 2?</p>
-<a class="reference internal image-reference" href="https://miro.medium.com/max/700/1*D-I8hK4WXC8wtpR5tvR0fw.png"><img alt="https://miro.medium.com/max/700/1*D-I8hK4WXC8wtpR5tvR0fw.png" src="https://miro.medium.com/max/700/1*D-I8hK4WXC8wtpR5tvR0fw.png" style="width: 85%;" /></a>
+<a class="reference internal image-reference" href="https://miro.medium.com/max/700/1*D-I8hK4WXC8wtpR5tvR0fw.png"><img alt="https://miro.medium.com/max/700/1*D-I8hK4WXC8wtpR5tvR0fw.png" src="https://miro.medium.com/max/700/1*D-I8hK4WXC8wtpR5tvR0fw.png" style="width: 85%;" />
+</a>
 <p>See: <a class="reference external" href="https://betterprogramming.pub/numpy-illustrated-the-visual-guide-to-numpy-3b1d4976de1d">https://betterprogramming.pub/numpy-illustrated-the-visual-guide-to-numpy-3b1d4976de1d</a></p>
 <section id="basic-numpy">
 <h2>Basic numpy<a class="headerlink" href="#basic-numpy" title="Link to this heading">#</a></h2>
@@ -605,7 +606,7 @@ u = v^2*cos(v)*e^v + 2?</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>426 μs ± 8.81 μs per loop (mean ± std. dev. of 7 runs, 1,000 loops each)
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>432 μs ± 2.18 μs per loop (mean ± std. dev. of 7 runs, 1,000 loops each)
 </pre></div>
 </div>
 </div>
@@ -618,7 +619,7 @@ u = v^2*cos(v)*e^v + 2?</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2.56 μs ± 24.1 ns per loop (mean ± std. dev. of 7 runs, 100,000 loops each)
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2.37 μs ± 4.8 ns per loop (mean ± std. dev. of 7 runs, 100,000 loops each)
 </pre></div>
 </div>
 </div>
@@ -721,12 +722,13 @@ b = np.arange(1, 9, 2)
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[0.70406383 0.99015531 0.18767151 0.93006475]
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[0.47546284 0.96824202 0.35654469 0.85809888]
 </pre></div>
 </div>
 </div>
 </div>
-<a class="reference internal image-reference" href="https://miro.medium.com/max/700/1*cyN_FxUVbkdDyrULhfTIGw.png"><img alt="https://miro.medium.com/max/700/1*cyN_FxUVbkdDyrULhfTIGw.png" src="https://miro.medium.com/max/700/1*cyN_FxUVbkdDyrULhfTIGw.png" style="width: 80%;" /></a>
+<a class="reference internal image-reference" href="https://miro.medium.com/max/700/1*cyN_FxUVbkdDyrULhfTIGw.png"><img alt="https://miro.medium.com/max/700/1*cyN_FxUVbkdDyrULhfTIGw.png" src="https://miro.medium.com/max/700/1*cyN_FxUVbkdDyrULhfTIGw.png" style="width: 80%;" />
+</a>
 <p>Ref: <a class="reference external" href="https://betterprogramming.pub/numpy-illustrated-the-visual-guide-to-numpy-3b1d4976de1d">https://betterprogramming.pub/numpy-illustrated-the-visual-guide-to-numpy-3b1d4976de1d</a></p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -844,7 +846,7 @@ Mask =  [False  True False  True False False False  True False  True  True False
   True False False]
 </pre></div>
 </div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/tmp/ipykernel_2682/2101971540.py:2: DeprecationWarning: This function is deprecated. Please call randint(0, 20 + 1) instead
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/tmp/ipykernel_2699/2101971540.py:2: DeprecationWarning: This function is deprecated. Please call randint(0, 20 + 1) instead
   a = np.random.random_integers(0, 20, 15)
 </pre></div>
 </div>
@@ -878,7 +880,8 @@ Mask =  [False  True False  True False False False  True False  True  True False
 </div>
 </div>
 </div>
-<a class="reference internal image-reference" href="https://miro.medium.com/max/700/1*nFGcXav_xxD7TXGiRYMpHg.png"><img alt="https://miro.medium.com/max/700/1*nFGcXav_xxD7TXGiRYMpHg.png" src="https://miro.medium.com/max/700/1*nFGcXav_xxD7TXGiRYMpHg.png" style="width: 85%;" /></a>
+<a class="reference internal image-reference" href="https://miro.medium.com/max/700/1*nFGcXav_xxD7TXGiRYMpHg.png"><img alt="https://miro.medium.com/max/700/1*nFGcXav_xxD7TXGiRYMpHg.png" src="https://miro.medium.com/max/700/1*nFGcXav_xxD7TXGiRYMpHg.png" style="width: 85%;" />
+</a>
 <p>Ref: <a class="reference external" href="https://betterprogramming.pub/numpy-illustrated-the-visual-guide-to-numpy-3b1d4976de1d">https://betterprogramming.pub/numpy-illustrated-the-visual-guide-to-numpy-3b1d4976de1d</a></p>
 </section>
 <section id="indexing-with-integers">
@@ -987,7 +990,7 @@ From: <a class="reference external" href="https://betterprogramming.pub/numpy-il
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>1.07 μs ± 2.12 ns per loop (mean ± std. dev. of 7 runs, 1,000,000 loops each)
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>1.01 μs ± 1.37 ns per loop (mean ± std. dev. of 7 runs, 1,000,000 loops each)
 </pre></div>
 </div>
 </div>
@@ -1000,7 +1003,7 @@ From: <a class="reference external" href="https://betterprogramming.pub/numpy-il
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>34.3 μs ± 828 ns per loop (mean ± std. dev. of 7 runs, 10,000 loops each)
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>31.4 μs ± 95.4 ns per loop (mean ± std. dev. of 7 runs, 10,000 loops each)
 </pre></div>
 </div>
 </div>
@@ -1010,19 +1013,24 @@ From: <a class="reference external" href="https://betterprogramming.pub/numpy-il
 </section>
 <section id="d-arrays">
 <h2>2D Arrays<a class="headerlink" href="#d-arrays" title="Link to this heading">#</a></h2>
-<a class="reference internal image-reference" href="https://miro.medium.com/max/700/1*aLMuXA81pDXaw0J0QdKvRQ.png"><img alt="https://miro.medium.com/max/700/1*aLMuXA81pDXaw0J0QdKvRQ.png" src="https://miro.medium.com/max/700/1*aLMuXA81pDXaw0J0QdKvRQ.png" style="width: 80%;" /></a>
+<a class="reference internal image-reference" href="https://miro.medium.com/max/700/1*aLMuXA81pDXaw0J0QdKvRQ.png"><img alt="https://miro.medium.com/max/700/1*aLMuXA81pDXaw0J0QdKvRQ.png" src="https://miro.medium.com/max/700/1*aLMuXA81pDXaw0J0QdKvRQ.png" style="width: 80%;" />
+</a>
 <p>REF: <a class="reference external" href="https://betterprogramming.pub/numpy-illustrated-the-visual-guide-to-numpy-3b1d4976de1d">https://betterprogramming.pub/numpy-illustrated-the-visual-guide-to-numpy-3b1d4976de1d</a></p>
 <section id="axis">
 <h3>Axis<a class="headerlink" href="#axis" title="Link to this heading">#</a></h3>
-<a class="reference internal image-reference" href="https://miro.medium.com/max/700/1*jmXqsVUNaBaUsBAkHgqb3A.png"><img alt="https://miro.medium.com/max/700/1*jmXqsVUNaBaUsBAkHgqb3A.png" src="https://miro.medium.com/max/700/1*jmXqsVUNaBaUsBAkHgqb3A.png" style="width: 80%;" /></a>
+<a class="reference internal image-reference" href="https://miro.medium.com/max/700/1*jmXqsVUNaBaUsBAkHgqb3A.png"><img alt="https://miro.medium.com/max/700/1*jmXqsVUNaBaUsBAkHgqb3A.png" src="https://miro.medium.com/max/700/1*jmXqsVUNaBaUsBAkHgqb3A.png" style="width: 80%;" />
+</a>
 <p>REF: <a class="reference external" href="https://betterprogramming.pub/numpy-illustrated-the-visual-guide-to-numpy-3b1d4976de1d">https://betterprogramming.pub/numpy-illustrated-the-visual-guide-to-numpy-3b1d4976de1d</a></p>
 </section>
 <section id="matrix-aggregation">
 <h3>Matrix aggregation<a class="headerlink" href="#matrix-aggregation" title="Link to this heading">#</a></h3>
-<a class="reference internal image-reference" href="https://jalammar.github.io/images/numpy/numpy-matrix-aggregation-4.png"><img alt="https://jalammar.github.io/images/numpy/numpy-matrix-aggregation-4.png" src="https://jalammar.github.io/images/numpy/numpy-matrix-aggregation-4.png" style="width: 80%;" /></a>
+<a class="reference internal image-reference" href="https://jalammar.github.io/images/numpy/numpy-matrix-aggregation-4.png"><img alt="https://jalammar.github.io/images/numpy/numpy-matrix-aggregation-4.png" src="https://jalammar.github.io/images/numpy/numpy-matrix-aggregation-4.png" style="width: 80%;" />
+</a>
 <p>REF: <a class="reference external" href="https://jalammar.github.io/visual-numpy/">https://jalammar.github.io/visual-numpy/</a></p>
-<a class="reference internal image-reference" href="https://miro.medium.com/max/1400/1*SJbmp5_qJixVztVMJQn9sw.png"><img alt="https://miro.medium.com/max/1400/1*SJbmp5_qJixVztVMJQn9sw.png" src="https://miro.medium.com/max/1400/1*SJbmp5_qJixVztVMJQn9sw.png" style="width: 80%;" /></a>
-<a class="reference internal image-reference" href="https://miro.medium.com/max/1400/1*ZUFxtl3Z2cdDZhcLUNpE0Q.png"><img alt="https://miro.medium.com/max/1400/1*ZUFxtl3Z2cdDZhcLUNpE0Q.png" src="https://miro.medium.com/max/1400/1*ZUFxtl3Z2cdDZhcLUNpE0Q.png" style="width: 80%;" /></a>
+<a class="reference internal image-reference" href="https://miro.medium.com/max/1400/1*SJbmp5_qJixVztVMJQn9sw.png"><img alt="https://miro.medium.com/max/1400/1*SJbmp5_qJixVztVMJQn9sw.png" src="https://miro.medium.com/max/1400/1*SJbmp5_qJixVztVMJQn9sw.png" style="width: 80%;" />
+</a>
+<a class="reference internal image-reference" href="https://miro.medium.com/max/1400/1*ZUFxtl3Z2cdDZhcLUNpE0Q.png"><img alt="https://miro.medium.com/max/1400/1*ZUFxtl3Z2cdDZhcLUNpE0Q.png" src="https://miro.medium.com/max/1400/1*ZUFxtl3Z2cdDZhcLUNpE0Q.png" style="width: 80%;" />
+</a>
 </section>
 </section>
 <section id="exercises">
@@ -1107,13 +1115,16 @@ From: <a class="reference external" href="https://betterprogramming.pub/numpy-il
 </section>
 <section id="d-matrix-example-image">
 <h2>3D matrix example: Image<a class="headerlink" href="#d-matrix-example-image" title="Link to this heading">#</a></h2>
-<a class="reference internal image-reference" href="https://jalammar.github.io/images/numpy/numpy-grayscale-image.png"><img alt="https://jalammar.github.io/images/numpy/numpy-grayscale-image.png" src="https://jalammar.github.io/images/numpy/numpy-grayscale-image.png" style="width: 80%;" /></a>
-<a class="reference internal image-reference" href="https://jalammar.github.io/images/numpy/numpy-color-image.png"><img alt="https://jalammar.github.io/images/numpy/numpy-color-image.png" src="https://jalammar.github.io/images/numpy/numpy-color-image.png" style="width: 80%;" /></a>
+<a class="reference internal image-reference" href="https://jalammar.github.io/images/numpy/numpy-grayscale-image.png"><img alt="https://jalammar.github.io/images/numpy/numpy-grayscale-image.png" src="https://jalammar.github.io/images/numpy/numpy-grayscale-image.png" style="width: 80%;" />
+</a>
+<a class="reference internal image-reference" href="https://jalammar.github.io/images/numpy/numpy-color-image.png"><img alt="https://jalammar.github.io/images/numpy/numpy-color-image.png" src="https://jalammar.github.io/images/numpy/numpy-color-image.png" style="width: 80%;" />
+</a>
 <p>REF: <a class="reference external" href="https://jalammar.github.io/visual-numpy/">https://jalammar.github.io/visual-numpy/</a></p>
 <section id="image-tutorial-example">
 <h3>Image tutorial example<a class="headerlink" href="#image-tutorial-example" title="Link to this heading">#</a></h3>
 <p>We will use the following kitty image: <a class="reference external" href="https://files.realpython.com/media/kitty.90952ca484f1.jpg">https://files.realpython.com/media/kitty.90952ca484f1.jpg</a> from <a class="reference external" href="https://realpython.com/numpy-tutorial/">https://realpython.com/numpy-tutorial/</a> . The local name will be just kitty.jpg .</p>
-<a class="reference internal image-reference" href="../../_images/kitty.jpg"><img alt="../../_images/kitty.jpg" src="../../_images/kitty.jpg" style="width: 80%;" /></a>
+<a class="reference internal image-reference" href="../../_images/kitty.jpg"><img alt="../../_images/kitty.jpg" src="../../_images/kitty.jpg" style="width: 80%;" />
+</a>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
