@@ -711,13 +711,13 @@ inside each cell correspond to indexes)</p>
 </a>
 </figure>
 <p>This will allow having an <code class="docutils literal notranslate"><span class="pre">MxN</span></code> size 1d array, but interpreting it as a 2D array, using the following mapping</p>
-<div class="amsmath math notranslate nohighlight" id="equation-8d4e47ce-f09d-44e1-894c-692fcc1c7d9a">
-<span class="eqno">(29)<a class="headerlink" href="#equation-8d4e47ce-f09d-44e1-894c-692fcc1c7d9a" title="Permalink to this equation">#</a></span>\[\begin{equation}
+<div class="amsmath math notranslate nohighlight" id="equation-e6157c03-e510-4cce-b870-99f1d67446ea">
+<span class="eqno">(29)<a class="headerlink" href="#equation-e6157c03-e510-4cce-b870-99f1d67446ea" title="Permalink to this equation">#</a></span>\[\begin{equation}
 id = iN + j,
 \end{equation}\]</div>
 <p>while , from 1D to 2D</p>
-<div class="amsmath math notranslate nohighlight" id="equation-8cda97b9-13b2-44a6-a5b5-62a628c4162d">
-<span class="eqno">(30)<a class="headerlink" href="#equation-8cda97b9-13b2-44a6-a5b5-62a628c4162d" title="Permalink to this equation">#</a></span>\[\begin{align}
+<div class="amsmath math notranslate nohighlight" id="equation-bed84336-3ba8-4009-8b09-e8572f1e43c2">
+<span class="eqno">(30)<a class="headerlink" href="#equation-bed84336-3ba8-4009-8b09-e8572f1e43c2" title="Permalink to this equation">#</a></span>\[\begin{align}
 i &amp;= id/N, // \text{uses integer truncation: 5/3 -&gt; 1 row}\\ 
 j &amp;= id\%N. // \text{the modulus represents here the columns displacement}
 \end{align}\]</div>
@@ -744,8 +744,8 @@ j &amp;= id\%N. // \text{the modulus represents here the columns displacement}
 <section id="practical-example-transposing-a-matrix">
 <h2>Practical Example: transposing a matrix<a class="headerlink" href="#practical-example-transposing-a-matrix" title="Link to this heading">#</a></h2>
 <p>In this example, you will implement a matrix transpose but using 1d arrays. We will use two matrices, <code class="docutils literal notranslate"><span class="pre">A</span></code> and <code class="docutils literal notranslate"><span class="pre">B</span></code>, whose dimensions will be read from the command line, and will be modelled using 1d arrays. We will initialize <code class="docutils literal notranslate"><span class="pre">A</span></code> as</p>
-<div class="amsmath math notranslate nohighlight" id="equation-f31fce4b-abbc-4698-8fcd-64c07bc0da60">
-<span class="eqno">(31)<a class="headerlink" href="#equation-f31fce4b-abbc-4698-8fcd-64c07bc0da60" title="Permalink to this equation">#</a></span>\[\begin{equation}
+<div class="amsmath math notranslate nohighlight" id="equation-522195b4-8dd0-4262-91fd-7041c07927f3">
+<span class="eqno">(31)<a class="headerlink" href="#equation-522195b4-8dd0-4262-91fd-7041c07927f3" title="Permalink to this equation">#</a></span>\[\begin{equation}
 A[i][j] = i*N + j;
 \end{equation}\]</div>
 <p>Since <span class="math notranslate nohighlight">\(B = A^T\)</span>, if A is of size <code class="docutils literal notranslate"><span class="pre">MxN</span></code>, then B is of size <code class="docutils literal notranslate"><span class="pre">NxM</span></code> (although their total size is the same, <code class="docutils literal notranslate"><span class="pre">M*N</span></code>). Complete the following code:</p>

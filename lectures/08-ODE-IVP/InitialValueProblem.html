@@ -506,6 +506,8 @@
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why-do-we-need-numerical-methods">Why Do We Need Numerical Methods?</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example-the-three-body-problem">Example: The Three-Body Problem</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#first-order-algorithm-the-euler-algorithm">First order algorithm: The Euler algorithm</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#second-order-algorithm-the-heun-method">Second order algorithm : The Heun method</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fourth-order-algorithm-runge-kutta-algorithm-rk4">Fourth order algorithm: Runge-Kutta algorithm RK4</a></li>
@@ -520,6 +522,8 @@
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#exercises">Exercises</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#solve-the-simple-harmonic-oscillator-energy-conservation">Solve the simple harmonic oscillator: energy conservation</a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#solve-the-simple-harmonic-oscillator-energy-conservation-with-heun">Solve the simple harmonic oscillator: energy conservation with Heun</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#phase-space">Phase space</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#streamlines">Streamlines</a></li>
 </ul>
 </li>
 </ul>
@@ -533,8 +537,24 @@
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">Exercises</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#more-numerical-libs">More numerical libs</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#stiff-ordinary-differential-equations">Stiff ordinary differential equations</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#what-makes-a-system-stiff">What makes a system stiff?</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#a-canonical-stiff-example">A canonical stiff example</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-stability-region-perspective">The stability region perspective</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#implicit-methods-the-cure-for-stiffness">Implicit methods: the cure for stiffness</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#backward-euler-implicit-euler">Backward Euler (implicit Euler)</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#non-linear-case-for-implicit-euler">Non linear case for implicit euler</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-trapezoidal-rule-cranknicolson">The trapezoidal rule (Crank–Nicolson)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#backward-differentiation-formulas-bdf">Backward differentiation formulas (BDF)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#stiffness-detection-and-adaptive-solvers">Stiffness detection and adaptive solvers</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#summary-when-to-use-which-method">Summary: when to use which method</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">Exercises</a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#modelling-a-bouncing-ball-and-an-introduction-to-oop">Modelling a bouncing ball and an introduction to OOP</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#extra-more-numerical-libs">EXTRA: More numerical libs</a></li>
 </ul>
             </nav>
         </div>
@@ -546,14 +566,13 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <p><a id="org83faa3b"></a></p>
-<section class="tex2jax_ignore mathjax_ignore" id="ordinary-differential-equations-and-initial-value-problems">
+  <section class="tex2jax_ignore mathjax_ignore" id="ordinary-differential-equations-and-initial-value-problems">
 <h1>Ordinary differential equations (and initial value problems)<a class="headerlink" href="#ordinary-differential-equations-and-initial-value-problems" title="Link to this heading">#</a></h1>
 <p>In mathematics, an ordinary differential equation (ODE) is a differential equation (DE) dependent on only a single independent variable. As with other DE, its unknown(s) consists of one (or more) function(s) and involves the derivatives of those functions The term “ordinary” is used in contrast with partial differential equations which may be with respect to more than one independent variable.(see <a class="reference external" href="https://en.wikipedia.org/wiki/Ordinary_differential_equation?useskin=vector">https://en.wikipedia.org/wiki/Ordinary_differential_equation?useskin=vector</a>)</p>
 <p><a class="reference external" href="https://en.wikipedia.org/wiki/Initial_value_problem?useskin=vector">An initial value problem</a>, IVP, is a a problem specified by an ordinary differential equation and its initial conditions.</p>
 <p>You have been already solving a differential equation: The second Newton law</p>
-<div class="amsmath math notranslate nohighlight" id="equation-3bd4dfcb-1164-4541-8258-c2114f07f1a9">
-<span class="eqno">(44)<a class="headerlink" href="#equation-3bd4dfcb-1164-4541-8258-c2114f07f1a9" title="Permalink to this equation">#</a></span>\[\begin{equation}
+<div class="amsmath math notranslate nohighlight" id="equation-1125972e-8258-4259-bb0e-668847e5a167">
+<span class="eqno">(44)<a class="headerlink" href="#equation-1125972e-8258-4259-bb0e-668847e5a167" title="Permalink to this equation">#</a></span>\[\begin{equation}
 ma = m\frac{dv}{dt} = m\frac{d^2x}{dt^2} = \sum F = f(t, x, v),
 \end{equation}\]</div>
 <p>Can be seen as a first order differential equation (when talking about <span class="math notranslate nohighlight">\(v\)</span>) or as a second order differential equation (regarding <span class="math notranslate nohighlight">\(x\)</span>).</p>
@@ -571,27 +590,362 @@ ma = m\frac{dv}{dt} = m\frac{d^2x}{dt^2} = \sum F = f(t, x, v),
 <li><p><a class="reference external" href="https://www.youtube.com/watch?v=ly4S0oi3Yz8&amp;amp;t=0s">Partial differential equations intro</a></p></li>
 </ul>
 <p>A numerical solution for and IVP corresponds to finding an algorithm that allows you to move from time <span class="math notranslate nohighlight">\(t\)</span> to time <span class="math notranslate nohighlight">\(t+\delta t\)</span>, given a time discretization. It is assumed that the general problem is represented as</p>
-<div class="amsmath math notranslate nohighlight" id="equation-04a97c57-6403-4119-afa6-13af090eada0">
-<span class="eqno">(45)<a class="headerlink" href="#equation-04a97c57-6403-4119-afa6-13af090eada0" title="Permalink to this equation">#</a></span>\[\begin{equation}
+<div class="amsmath math notranslate nohighlight" id="equation-697dd6e6-1c9e-4f4b-bc1e-4c10fa41b691">
+<span class="eqno">(45)<a class="headerlink" href="#equation-697dd6e6-1c9e-4f4b-bc1e-4c10fa41b691" title="Permalink to this equation">#</a></span>\[\begin{equation}
 \dot y = \frac{dy}{dt} = f(t, y),
 \end{equation}\]</div>
 <p>where <span class="math notranslate nohighlight">\(y\)</span> represents the state of the system. All linear differential equations of any order can be cast to this form by introducing auxiliary derivatives, so the problem becomes vectorial, but its form remains</p>
-<div class="amsmath math notranslate nohighlight" id="equation-e0103d7b-9433-4555-8854-24366e28c0d3">
-<span class="eqno">(46)<a class="headerlink" href="#equation-e0103d7b-9433-4555-8854-24366e28c0d3" title="Permalink to this equation">#</a></span>\[\begin{equation}
+<div class="amsmath math notranslate nohighlight" id="equation-ae738459-a646-4a21-9a7d-c1219f146a87">
+<span class="eqno">(46)<a class="headerlink" href="#equation-ae738459-a646-4a21-9a7d-c1219f146a87" title="Permalink to this equation">#</a></span>\[\begin{equation}
 \frac{d\vec y}{dt} = \vec f(t, \vec y).
 \end{equation}\]</div>
 <p>So the key question is how to go numerically from <span class="math notranslate nohighlight">\(\vec y(t)\)</span> to <span class="math notranslate nohighlight">\(\vec y(t+\delta t)\)</span>. There are several algorithms, with both advantages and disadvantages (in sinplicity, precision, stability, etc), to do so. Here we will see Euler algorithm which is the most straight forward (but lacks precision and stability), and later  one of the most common, the Runge-Kutta. After that, specific algorithms for second order equations will be discussed (like Leap-Frog and Verlet), and, finally some numerical libraries will be shown.</p>
+<section id="why-do-we-need-numerical-methods">
+<h2>Why Do We Need Numerical Methods?<a class="headerlink" href="#why-do-we-need-numerical-methods" title="Link to this heading">#</a></h2>
+<p>Many of the equations that appear in introductory physics courses admit elegant analytical solutions. Examples include projectile motion without air resistance, the simple harmonic oscillator, and exponential radioactive decay.</p>
+<p>However, most realistic physical systems are governed by differential equations that cannot be solved exactly. In these cases, numerical methods are not merely convenient—they are essential.</p>
+<p>Some important examples are:</p>
+<ul class="simple">
+<li><p>The gravitational interaction of three or more bodies (the <em>N-body problem</em>).</p></li>
+<li><p>The motion of a double pendulum.</p></li>
+<li><p>Turbulent fluid flows.</p></li>
+<li><p>Molecular dynamics simulations involving thousands of interacting particles.</p></li>
+<li><p>Weather and climate models.</p></li>
+<li><p>Chaotic systems such as the Lorenz equations.</p></li>
+</ul>
+<p>In all these cases, the governing equations are known, but no closed-form analytical solution exists. Instead, we compute approximate solutions by integrating the equations step by step on a computer.</p>
+<p>The goal of this chapter is to understand how such numerical integration methods work, beginning with the simplest approach: Euler’s method.</p>
+</section>
+<section id="example-the-three-body-problem">
+<h2>Example: The Three-Body Problem<a class="headerlink" href="#example-the-three-body-problem" title="Link to this heading">#</a></h2>
+<p>Consider three masses interacting through Newtonian gravity. For each body,</p>
+<div class="amsmath math notranslate nohighlight" id="equation-e68419b9-f4da-48f5-aac7-eaaefd9234a5">
+<span class="eqno">(47)<a class="headerlink" href="#equation-e68419b9-f4da-48f5-aac7-eaaefd9234a5" title="Permalink to this equation">#</a></span>\[\begin{equation}
+m_i \frac{d^2\mathbf r_i}{dt^2}=
+\sum_{j\neq i}
+G\frac{m_i m_j}{|\mathbf r_j-\mathbf r_i|^3}
+(\mathbf r_j-\mathbf r_i).
+\end{equation}\]</div>
+<p>Unlike the two-body problem, which leads to the familiar Keplerian orbits, no general analytical solution is known for three interacting bodies.</p>
+<p>Even though the equations are straightforward to write down, predicting the motion requires numerical integration.</p>
+<p>You can see and interactive three-body problem simulation at <a class="reference external" href="https://trisolarchaos.com/?pr=lagrange&amp;amp;n=3&amp;amp;s=5.0&amp;amp;so=0.01&amp;amp;im=verlet&amp;amp;dt=5.00e-4&amp;amp;rt=1.0e-6&amp;amp;at=1.0e-8&amp;amp;bs=0.50&amp;amp;sf=0&amp;amp;sv=0&amp;amp;cm=free&amp;amp;kt=1&amp;amp;st=1&amp;amp;ag=0&amp;amp;tl=1500&amp;amp;cp=0.0000,0.0000,10.0000&amp;amp;ct=0.0000,0.0000,0.0000">Trisolar chaos</a></p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">IPython</span>
+<span class="n">IPython</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">HTML</span><span class="p">(</span><span class="s1">&#39;assets/ode_method_comparison.html&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.wrap{padding:1rem 0;font-family:sans-serif}
+.tabs{display:flex;gap:6px;margin-bottom:1rem;flex-wrap:wrap}
+button{padding:6px 14px;font-size:13px;border:1px solid #ccc;border-radius:6px;background:#fff;color:#555;cursor:pointer}
+button.active{background:#f0f0f0;color:#111;border-color:#999}
+.grid4{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1rem}
+.ctrl{display:flex;flex-direction:column;gap:3px;font-size:12px;color:#777}
+.ctrl-r{display:flex;align-items:center;gap:8px}
+.ctrl-r input{flex:1}
+.ctrl-r b{min-width:44px;font-size:13px;color:#222;font-weight:600;text-align:right}
+canvas{width:100%;border:1px solid #ddd;border-radius:6px;display:block;background:#fff}
+.leg{display:flex;flex-wrap:wrap;gap:16px;font-size:12px;color:#555;margin-top:8px}
+.leg span{display:flex;align-items:center;gap:5px}
+.errs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:10px;font-size:12px}
+.ec{background:#f8f8f8;border:1px solid #eee;border-radius:6px;padding:7px;text-align:center}
+.ec .el{color:#888;margin-bottom:3px}
+.ec .ev{font-weight:600;font-size:14px}
+.note{font-size:11px;color:#999;margin-top:8px;line-height:1.5}
+</style>
+<div class="wrap">
+  <div class="tabs">
+    <button class="active" onclick="setTab('harmonic',this)">x(t)</button>
+    <button onclick="setTab('phase',this)">Phase portrait</button>
+  </div>
+  <div class="grid4">
+    <div class="ctrl">
+      <span>ω — natural frequency</span>
+      <div class="ctrl-r"><input type="range" id="sl_w" min="0.3" max="3" step="0.1" value="1" oninput="draw()"><b id="wval">1.0</b></div>
+    </div>
+    <div class="ctrl">
+      <span>γ — damping coefficient</span>
+      <div class="ctrl-r"><input type="range" id="sl_g" min="0" max="1.5" step="0.05" value="0" oninput="draw()"><b id="gval">0.00</b></div>
+    </div>
+    <div class="ctrl">
+      <span>F — forcing amplitude</span>
+      <div class="ctrl-r"><input type="range" id="sl_f" min="0" max="2" step="0.05" value="0" oninput="draw()"><b id="fval">0.00</b></div>
+    </div>
+    <div class="ctrl">
+      <span>Ω — forcing frequency</span>
+      <div class="ctrl-r"><input type="range" id="sl_o" min="0.3" max="3" step="0.1" value="1" oninput="draw()"><b id="oval">1.0</b></div>
+    </div>
+    <div class="ctrl">
+      <span>Step size h</span>
+      <div class="ctrl-r"><input type="range" id="sl_h" min="0.01" max="0.5" step="0.01" value="0.2" oninput="draw()"><b id="hval">0.20</b></div>
+    </div>
+    <div class="ctrl">
+      <span>Time span T</span>
+      <div class="ctrl-r"><input type="range" id="sl_t" min="5" max="80" step="5" value="20" oninput="draw()"><b id="tval">20</b></div>
+    </div>
+  </div>
+  <canvas id="cv" height="300"></canvas>
+  <div class="leg">
+    <span><svg width="28" height="10"><line x1="0" y1="5" x2="28" y2="5" stroke="#111" stroke-width="2.5" stroke-dasharray="7,3"/></svg>Exact / RK4-ref</span>
+    <span><svg width="28" height="10"><line x1="0" y1="5" x2="28" y2="5" stroke="#e05" stroke-width="2"/></svg>Euler</span>
+    <span><svg width="28" height="10"><line x1="0" y1="5" x2="28" y2="5" stroke="#27e" stroke-width="2"/></svg>Heun</span>
+    <span><svg width="28" height="10"><line x1="0" y1="5" x2="28" y2="5" stroke="#1a3" stroke-width="2"/></svg>RK4</span>
+  </div>
+  <div class="errs">
+    <div class="ec"><div class="el">regime</div><div class="ev" id="regime" style="color:#555">—</div></div>
+    <div class="ec"><div class="el">Euler err</div><div class="ev" id="ee" style="color:#e05">—</div></div>
+    <div class="ec"><div class="el">Heun err</div><div class="ev" id="he" style="color:#27e">—</div></div>
+    <div class="ec"><div class="el">RK4 err</div><div class="ev" id="re" style="color:#1a3">—</div></div>
+  </div>
+  <div class="note" id="note">Undamped, unforced: exact solution is x(t) = cos(ωt). The dashed black line is independent of h.</div>
+</div>
+<script>
+let tab = 'harmonic';
+
+function setTab(t, btn) {
+  tab = t;
+  document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  draw();
+}
+
+function getParams() {
+  return {
+    w: +document.getElementById('sl_w').value,
+    g: +document.getElementById('sl_g').value,
+    F: +document.getElementById('sl_f').value,
+    O: +document.getElementById('sl_o').value,
+    h: +document.getElementById('sl_h').value,
+    tf: +document.getElementById('sl_t').value,
+  };
+}
+
+function updateLabels(p) {
+  document.getElementById('wval').textContent = p.w.toFixed(1);
+  document.getElementById('gval').textContent = p.g.toFixed(2);
+  document.getElementById('fval').textContent = p.F.toFixed(2);
+  document.getElementById('oval').textContent = p.O.toFixed(1);
+  document.getElementById('hval').textContent = p.h.toFixed(2);
+  document.getElementById('tval').textContent = p.tf.toFixed(0);
+}
+
+function makeODE(w, g, F, O) {
+  return (t, y) => [
+    y[1],
+    -w*w*y[0] - g*y[1] + F*Math.cos(O*t)
+  ];
+}
+
+function exactSolution(w, g, F, O, tf) {
+  const N = 800;
+  const pts = [];
+  if (g === 0 && F === 0) {
+    for (let i = 0; i <= N; i++) {
+      const t = i * tf / N;
+      pts.push([t, Math.cos(w * t), -w * Math.sin(w * t)]);
+    }
+  } else if (g > 0 && F === 0 && g < 2*w) {
+    const wd = Math.sqrt(Math.max(0, w*w - g*g/4));
+    for (let i = 0; i <= N; i++) {
+      const t = i * tf / N;
+      const x = Math.exp(-g*t/2) * Math.cos(wd * t);
+      const v = Math.exp(-g*t/2) * (-g/2 * Math.cos(wd*t) - wd * Math.sin(wd*t));
+      pts.push([t, x, v]);
+    }
+  } else {
+    pts.push(null);
+  }
+  return pts;
+}
+
+function solve(method, f, tf, h) {
+  const y0 = [1, 0];
+  const pts = [[0, ...y0]];
+  let y = [...y0], t = 0;
+  const step = Math.min(h, tf);
+  while (t < tf - 1e-12) {
+    const dt = Math.min(step, tf - t);
+    if (method === 'euler') {
+      const d = f(t, y);
+      y = y.map((v, i) => v + dt * d[i]);
+    } else if (method === 'heun') {
+      const k1 = f(t, y);
+      const yp = y.map((v, i) => v + dt * k1[i]);
+      const k2 = f(t + dt, yp);
+      y = y.map((v, i) => v + dt * (k1[i] + k2[i]) / 2);
+    } else {
+      const k1 = f(t, y);
+      const k2 = f(t+dt/2, y.map((v,i)=>v+dt*k1[i]/2));
+      const k3 = f(t+dt/2, y.map((v,i)=>v+dt*k2[i]/2));
+      const k4 = f(t+dt,   y.map((v,i)=>v+dt*k3[i]));
+      y = y.map((v,i) => v + dt*(k1[i]+2*k2[i]+2*k3[i]+k4[i])/6);
+    }
+    t += dt;
+    pts.push([t, ...y]);
+  }
+  return pts;
+}
+
+function refSolution(f, tf) {
+  return solve('rk4', f, tf, 0.005);
+}
+
+function maxErr(pts, ref) {
+  let err = 0;
+  for (const p of pts) {
+    const t = p[0];
+    const idx = Math.round(t / (ref[ref.length-1][0]) * (ref.length-1));
+    const r = ref[Math.min(idx, ref.length-1)];
+    const e = Math.abs(p[1] - r[1]);
+    if (isFinite(e)) err = Math.max(err, e);
+  }
+  return err;
+}
+
+function fmt(e) {
+  if (!isFinite(e) || e > 9999) return '∞';
+  if (e < 0.001) return e.toExponential(1);
+  return e.toFixed(3);
+}
+
+function draw() {
+  const p = getParams();
+  updateLabels(p);
+
+  const f = makeODE(p.w, p.g, p.F, p.O);
+  const pe = solve('euler', f, p.tf, p.h);
+  const ph = solve('heun',  f, p.tf, p.h);
+  const pr = solve('rk4',   f, p.tf, p.h);
+
+  const exactPts = exactSolution(p.w, p.g, p.F, p.O, p.tf);
+  const hasExact = exactPts[0] !== null;
+  const ref = hasExact ? exactPts : refSolution(f, p.tf);
+
+  const isResonance = p.F > 0 && Math.abs(p.O - p.w) < 0.15 && p.g < 0.1;
+  const regime = p.g === 0 && p.F === 0 ? 'undamped' :
+                 p.g > 0  && p.F === 0 ? (p.g < 2*p.w ? 'underdamped' : 'overdamped') :
+                 isResonance ? 'resonance!' : 'forced';
+  document.getElementById('regime').textContent = regime;
+
+  const noteEl = document.getElementById('note');
+  if (hasExact) {
+    noteEl.textContent = p.g===0&&p.F===0
+      ? 'Undamped, unforced: exact = cos(ωt). Dashed line is independent of h.'
+      : 'Underdamped, unforced: exact = e^(−γt/2)·cos(ω_d·t). Dashed line is independent of h.';
+  } else {
+    noteEl.textContent = 'No closed-form exact solution for this regime — dashed line is a fine RK4 reference (h=0.005), independent of the h slider.';
+  }
+
+  const cv = document.getElementById('cv');
+  const DPR = window.devicePixelRatio || 1;
+  const W = cv.offsetWidth || 620, H = 300;
+  cv.width = W*DPR; cv.height = H*DPR;
+  cv.style.width = W+'px'; cv.style.height = H+'px';
+  const ctx = cv.getContext('2d');
+  ctx.scale(DPR, DPR);
+  ctx.fillStyle = '#fff'; ctx.fillRect(0,0,W,H);
+
+  const PAD = {l:48, r:14, t:16, b:30};
+  const PW = W-PAD.l-PAD.r, PH = H-PAD.t-PAD.b;
+
+  if (tab === 'harmonic') {
+    const refY = ref.map(q=>q[1]).filter(v=>isFinite(v)&&Math.abs(v)<200);
+    const ymin = Math.min(...refY) - 0.15;
+    const ymax = Math.max(...refY) + 0.15;
+    const sx = t => PAD.l + (t/p.tf)*PW;
+    const sy = v => PAD.t + (1-(v-ymin)/(ymax-ymin))*PH;
+
+    ctx.strokeStyle='#eee'; ctx.lineWidth=0.8;
+    for(let i=0;i<=4;i++){const yv=ymin+i*(ymax-ymin)/4; ctx.beginPath();ctx.moveTo(PAD.l,sy(yv));ctx.lineTo(PAD.l+PW,sy(yv));ctx.stroke();}
+    ctx.fillStyle='#aaa'; ctx.font='10px sans-serif'; ctx.textAlign='right';
+    for(let i=0;i<=4;i++){const yv=ymin+i*(ymax-ymin)/4; ctx.fillText(yv.toFixed(1),PAD.l-4,sy(yv)+3);}
+    ctx.textAlign='center';
+    for(let i=0;i<=5;i++){const t=i*p.tf/5; ctx.fillStyle='#aaa';ctx.fillText(t.toFixed(0),sx(t),H-PAD.b+13);}
+    ctx.strokeStyle='#ccc'; ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(PAD.l,PAD.t);ctx.lineTo(PAD.l,H-PAD.b);ctx.lineTo(W-PAD.r,H-PAD.b);ctx.stroke();
+
+    function line(pts, col, dashed, lw) {
+      ctx.save(); ctx.beginPath(); ctx.rect(PAD.l,PAD.t,PW,PH); ctx.clip();
+      ctx.strokeStyle=col; ctx.lineWidth=lw||1.8; ctx.setLineDash(dashed?[7,4]:[]);
+      ctx.beginPath(); let first=true;
+      for(const pt of pts){
+        const x=sx(pt[0]), y=sy(pt[1]);
+        if(!isFinite(y)||pt[1]<ymin-5||pt[1]>ymax+5){first=true;continue;}
+        first?ctx.moveTo(x,y):ctx.lineTo(x,y); first=false;
+      }
+      ctx.stroke(); ctx.setLineDash([]); ctx.restore();
+    }
+
+    line(pe, '#e05', false);
+    line(ph, '#27e', false);
+    line(pr, '#1a3', false);
+    line(ref, '#111', true, 2.5);
+
+    document.getElementById('ee').textContent = fmt(maxErr(pe, ref));
+    document.getElementById('he').textContent = fmt(maxErr(ph, ref));
+    document.getElementById('re').textContent = fmt(maxErr(pr, ref));
+
+  } else {
+    const refX = ref.map(q=>q[1]).filter(v=>isFinite(v)&&Math.abs(v)<200);
+    const refV = ref.map(q=>q[2]??0).filter(v=>isFinite(v)&&Math.abs(v)<200);
+    const rng = Math.max(...refX.map(Math.abs),...refV.map(Math.abs),0.5)*1.15;
+    const sx = x => PAD.l + (x+rng)/(2*rng)*PW;
+    const sy = v => PAD.t + (1-(v+rng)/(2*rng))*PH;
+
+    ctx.strokeStyle='#eee'; ctx.lineWidth=0.8;
+    ctx.beginPath();ctx.moveTo(sx(0),PAD.t);ctx.lineTo(sx(0),H-PAD.b);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(PAD.l,sy(0));ctx.lineTo(W-PAD.r,sy(0));ctx.stroke();
+    ctx.fillStyle='#aaa'; ctx.font='10px sans-serif'; ctx.textAlign='center';
+    ctx.fillText('x →', W-PAD.r+2, sy(0)+4);
+    ctx.save();ctx.translate(sx(0)-4,PAD.t+8);ctx.fillText('v',0,0);ctx.restore();
+    ctx.strokeStyle='#ccc'; ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(PAD.l,PAD.t);ctx.lineTo(PAD.l,H-PAD.b);ctx.lineTo(W-PAD.r,H-PAD.b);ctx.stroke();
+
+    function pline(pts, col, dashed, lw) {
+      ctx.save(); ctx.beginPath(); ctx.rect(PAD.l,PAD.t,PW,PH); ctx.clip();
+      ctx.strokeStyle=col; ctx.lineWidth=lw||1.8; ctx.setLineDash(dashed?[7,4]:[]);
+      ctx.beginPath(); let first=true;
+      for(const pt of pts){
+        const x=sx(pt[1]), y=sy(pt[2]??0);
+        if(!isFinite(x)||!isFinite(y)){first=true;continue;}
+        first?ctx.moveTo(x,y):ctx.lineTo(x,y); first=false;
+      }
+      ctx.stroke(); ctx.setLineDash([]); ctx.restore();
+    }
+
+    pline(pe,'#e05',false);
+    pline(ph,'#27e',false);
+    pline(pr,'#1a3',false);
+    pline(ref,'#111',true,2.5);
+
+    document.getElementById('ee').textContent = fmt(maxErr(pe,ref));
+    document.getElementById('he').textContent = fmt(maxErr(ph,ref));
+    document.getElementById('re').textContent = fmt(maxErr(pr,ref));
+  }
+}
+
+window.addEventListener('load', draw);
+window.addEventListener('resize', draw);
+</script>
+</div></div>
+</div>
 <p><a id="org87d015a"></a></p>
+</section>
 <section id="first-order-algorithm-the-euler-algorithm">
 <h2>First order algorithm: The Euler algorithm<a class="headerlink" href="#first-order-algorithm-the-euler-algorithm" title="Link to this heading">#</a></h2>
 <p>The <a class="reference external" href="https://en.wikipedia.org/wiki/Euler_method?useskin=vector">Euler method</a> is based on the forward derivative:</p>
-<div class="amsmath math notranslate nohighlight" id="equation-92ebc71e-c27d-4d03-9711-fa3dac5e4293">
-<span class="eqno">(47)<a class="headerlink" href="#equation-92ebc71e-c27d-4d03-9711-fa3dac5e4293" title="Permalink to this equation">#</a></span>\[\begin{equation}
+<div class="amsmath math notranslate nohighlight" id="equation-2b588c97-5971-4513-95ca-a76818443123">
+<span class="eqno">(48)<a class="headerlink" href="#equation-2b588c97-5971-4513-95ca-a76818443123" title="Permalink to this equation">#</a></span>\[\begin{equation}
 \frac{d\vec y}{dt} = \frac{\vec y(t+h) - \vec y(t)}{h} + O(h).
 \end{equation}\]</div>
 <p>Here, <span class="math notranslate nohighlight">\(h = \delta t\)</span>. Since we are looking for <span class="math notranslate nohighlight">\(f(t + \delta t)\)</span>, and we actually know the derivatives (they are given by the differential equation we want to solve), then</p>
-<div class="amsmath math notranslate nohighlight" id="equation-383d7f88-e60e-4fc2-9939-c510a1194dae">
-<span class="eqno">(48)<a class="headerlink" href="#equation-383d7f88-e60e-4fc2-9939-c510a1194dae" title="Permalink to this equation">#</a></span>\[\begin{align}
+<div class="amsmath math notranslate nohighlight" id="equation-81b93ed0-debb-4646-ae29-52758150cbe1">
+<span class="eqno">(49)<a class="headerlink" href="#equation-81b93ed0-debb-4646-ae29-52758150cbe1" title="Permalink to this equation">#</a></span>\[\begin{align}
 \vec y(t+\delta t) &amp;= \vec y(t) + \delta t \frac{d \vec y}{dt} + O(\delta t^2), \\
 &amp;= \vec y(t) + \delta t \vec f(t, \vec y) + O(\delta  t^2),
 \end{align}\]</div>
@@ -614,8 +968,8 @@ ma = m\frac{dv}{dt} = m\frac{d^2x}{dt^2} = \sum F = f(t, x, v),
 </figure>
 <p>The Heun method, also known as the improved Euler method, mid-point method, or second order Runge-Kuta mehtod, is an improvement over the initial Euler method.</p>
 <p>Here, you need to compute intermediate values to estimate better the final value at each step:</p>
-<div class="amsmath math notranslate nohighlight" id="equation-2565b791-dfce-4231-a847-d6b88e52164b">
-<span class="eqno">(49)<a class="headerlink" href="#equation-2565b791-dfce-4231-a847-d6b88e52164b" title="Permalink to this equation">#</a></span>\[\begin{align}
+<div class="amsmath math notranslate nohighlight" id="equation-e104f047-9e61-4955-86e9-4f802807d247">
+<span class="eqno">(50)<a class="headerlink" href="#equation-e104f047-9e61-4955-86e9-4f802807d247" title="Permalink to this equation">#</a></span>\[\begin{align}
 \vec k_{1i} &amp;= f(t_i, \vec y_i),\\
 \vec k_{2i} &amp;= f(t_i + h, \vec y_i + h k_{1i}),\\
 \vec y_{i+1} &amp;= \vec y_i + \frac{h}{2}\left[\vec k_{1i} + \vec k_{2i} \right].
@@ -632,13 +986,13 @@ ma = m\frac{dv}{dt} = m\frac{d^2x}{dt^2} = \sum F = f(t, x, v),
     <figcaption>From: "https://upload.wikimedia.org/wikipedia/commons/7/7e/Runge-Kutta_slopes.svg"</figcaption>
 </div>
 <p>For the RK4 algorithm , we can compute the evolution as</p>
-<div class="amsmath math notranslate nohighlight" id="equation-bbd68750-5db7-4963-b323-f59acee20714">
-<span class="eqno">(50)<a class="headerlink" href="#equation-bbd68750-5db7-4963-b323-f59acee20714" title="Permalink to this equation">#</a></span>\[\begin{equation}
+<div class="amsmath math notranslate nohighlight" id="equation-976dc215-1c9a-4774-aae2-f1966b98101f">
+<span class="eqno">(51)<a class="headerlink" href="#equation-976dc215-1c9a-4774-aae2-f1966b98101f" title="Permalink to this equation">#</a></span>\[\begin{equation}
 \vec y(t+\delta t) = \vec y (t) + \frac{h}{6}(\vec k_1 + 2\vec k_2 + 2\vec k_3 + \vec k_4) + O(\delta t^5),
 \end{equation}\]</div>
 <p>with the <span class="math notranslate nohighlight">\(\vec k_i\)</span> functions evaluating the derivatives at different stages</p>
-<div class="amsmath math notranslate nohighlight" id="equation-e0097bef-9bf7-473a-80f7-d6a614818bc7">
-<span class="eqno">(51)<a class="headerlink" href="#equation-e0097bef-9bf7-473a-80f7-d6a614818bc7" title="Permalink to this equation">#</a></span>\[\begin{align}
+<div class="amsmath math notranslate nohighlight" id="equation-5b1c5236-2fd4-4a78-b264-0b877529f85e">
+<span class="eqno">(52)<a class="headerlink" href="#equation-5b1c5236-2fd4-4a78-b264-0b877529f85e" title="Permalink to this equation">#</a></span>\[\begin{align}
 \vec k_1 &amp;= \vec f(t, \vec y(t)),\\
 \vec k_2 &amp;= \vec f(t + \frac{h}{2}, \vec y(t) + h\frac{\vec k_1}{2}),\\
 \vec k_3 &amp;= \vec f(t + \frac{h}{2}, \vec y(t) + h\frac{\vec k_2}{2}),\\
@@ -661,14 +1015,14 @@ ma = m\frac{dv}{dt} = m\frac{d^2x}{dt^2} = \sum F = f(t, x, v),
 <p>Do you think something else is needed?</p>
 <p>Therefore, something like the following is needed:</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">class</span><span class="w"> </span><span class="nc">deriv_t</span><span class="p">,</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">system_t</span><span class="p">,</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">printer_t</span><span class="o">&gt;</span>
-<span class="kt">void</span><span class="w"> </span><span class="n">integrate</span><span class="p">(</span><span class="n">deriv_t</span><span class="w"> </span><span class="n">fderiv</span><span class="p">,</span><span class="w"> </span><span class="n">system_t</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">s</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">tinit</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">tend</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">dt</span><span class="p">,</span><span class="w"> </span><span class="n">printer_t</span><span class="w"> </span><span class="n">writer</span><span class="p">);</span>
+<span class="kt">void</span><span class="w"> </span><span class="n">integrate</span><span class="p">(</span><span class="n">deriv_t</span><span class="w"> </span><span class="n">fderiv</span><span class="p">,</span><span class="w"> </span><span class="n">system_t</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">s</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">tinit</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">tend</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">dt</span><span class="p">,</span><span class="w"> </span><span class="n">printer_t</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">writer</span><span class="p">);</span>
 </pre></div>
 </div>
 <p>where:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">state_t</span></code> represents the system state, like <code class="docutils literal notranslate"><span class="pre">std::valarray&lt;double&gt;</span></code> or <code class="docutils literal notranslate"><span class="pre">std::vector&lt;double&gt;</span></code>.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">deriv_t</span></code> represents the function type that compute the derivatives, which in turn should be like <code class="docutils literal notranslate"><span class="pre">void</span> <span class="pre">fderiv(const</span> <span class="pre">system_t</span> <span class="pre">&amp;</span> <span class="pre">s,</span> <span class="pre">system_t</span> <span class="pre">&amp;</span> <span class="pre">dsdt,</span> <span class="pre">double</span> <span class="pre">t)</span></code>. Notice the const and non-const on the arguments.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">printer_t</span></code> represents a function type used to print, like <code class="docutils literal notranslate"><span class="pre">void</span> <span class="pre">printer(const</span> <span class="pre">system_t</span> <span class="pre">&amp;</span> <span class="pre">s,</span> <span class="pre">double</span> <span class="pre">t)</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">printer_t</span></code> represents a function type used to print, like <code class="docutils literal notranslate"><span class="pre">void</span> <span class="pre">printer(const</span> <span class="pre">system_t</span> <span class="pre">&amp;</span> <span class="pre">s,</span> <span class="pre">double</span> <span class="pre">t)</span></code> or a lambda. To accept any object, we use a forwarinding reference <code class="docutils literal notranslate"><span class="pre">&amp;&amp;</span></code> which adapts to any type.</p></li>
 </ul>
 <p>When a function can work with several generic types as shown, one can use templates. But we can also use <code class="docutils literal notranslate"><span class="pre">using</span> <span class="pre">fptr</span> <span class="pre">=</span> <span class="pre">std::fuction...</span></code>. To learn more, we will use templates! (this makes us put the implementation in the header files).</p>
 <p>To represent the system state <span class="math notranslate nohighlight">\(s\)</span> we can use <code class="docutils literal notranslate"><span class="pre">std::valarray</span></code> which will avoid using many for loops.</p>
@@ -710,6 +1064,7 @@ ma = m\frac{dv}{dt} = m\frac{d^2x}{dt^2} = \sum F = f(t, x, v),
 <span class="w">        </span><span class="n">fderiv</span><span class="p">(</span><span class="n">s</span><span class="p">,</span><span class="w"> </span><span class="n">dsdt</span><span class="p">,</span><span class="w"> </span><span class="n">t</span><span class="p">);</span>
 
 <span class="w">        </span><span class="c1">// compute new state. NOTE: Not using components, assuming valarray or similar</span>
+<span class="w">       </span><span class="c1">// TODO: Complete the code here</span>
 <span class="w"> </span>
 <span class="w">        </span><span class="c1">// write new state</span>
 <span class="w">        </span><span class="n">writer</span><span class="p">(</span><span class="n">s</span><span class="p">,</span><span class="w"> </span><span class="n">t</span><span class="p">);</span>
@@ -718,6 +1073,11 @@ ma = m\frac{dv}{dt} = m\frac{d^2x}{dt^2} = \sum F = f(t, x, v),
 </pre></div>
 </div>
 <p>and the main file would be</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Use of std::valarray
+We use std::valarray for its convenient mathematical syntax and lack of external dependencies. For high-performance or large-scale simulations, physicists typically migrate to dedicated linear algebra libraries like Eigen or Armadillo.</p>
+</div>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;iostream&gt;</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;valarray&gt;</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cmath&gt;</span>
@@ -752,6 +1112,7 @@ ma = m\frac{dv}{dt} = m\frac{d^2x}{dt^2} = \sum F = f(t, x, v),
 
 <span class="kt">void</span><span class="w"> </span><span class="nf">fderiv</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">state_t</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="n">state_t</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">dydt</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">t</span><span class="p">)</span>
 <span class="p">{</span>
+<span class="w">    </span><span class="c1">// TODO: Complete the code here</span>
 <span class="w">    </span>
 <span class="p">}</span>
 </pre></div>
@@ -772,8 +1133,8 @@ ma = m\frac{dv}{dt} = m\frac{d^2x}{dt^2} = \sum F = f(t, x, v),
     <figcaption>From: "https://upload.wikimedia.org/wikipedia/commons/1/13/A_Trajectory_Through_Phase_Space_in_a_Lorenz_Attractor.gif"</figcaption>
 </div>
 <p>It is represented as the following set of coupled equations:</p>
-<div class="amsmath math notranslate nohighlight" id="equation-f48d08b2-85f9-4b6a-87a0-24240ac0ead1">
-<span class="eqno">(52)<a class="headerlink" href="#equation-f48d08b2-85f9-4b6a-87a0-24240ac0ead1" title="Permalink to this equation">#</a></span>\[\begin{align}
+<div class="amsmath math notranslate nohighlight" id="equation-256d9c2f-d035-412d-9664-a72d36176716">
+<span class="eqno">(53)<a class="headerlink" href="#equation-256d9c2f-d035-412d-9664-a72d36176716" title="Permalink to this equation">#</a></span>\[\begin{align}
 \frac{dx}{dt} = \sigma(y-x),\\
 \frac{dy}{dt} = x(\rho  - z) - y, \\
 \frac{dz}{dt} = xy - \beta z.
@@ -781,7 +1142,7 @@ ma = m\frac{dv}{dt} = m\frac{d^2x}{dt^2} = \sum F = f(t, x, v),
 <p>As you can see, we have three independet variables, and three parameters.</p>
 <section id="exercise-solve-using-the-euler-method">
 <h3>Exercise : Solve using the Euler method<a class="headerlink" href="#exercise-solve-using-the-euler-method" title="Link to this heading">#</a></h3>
-<p>Adapt the previous main code to solve the Lorenz system. Select some parameter values and plot two solutions that start very close.</p>
+<p>Adapt the previous main code to solve the Lorenz system. Select some parameter values and plot two solutions that start very close. Use <span class="math notranslate nohighlight">\(\sigma=10, \rho=28, \beta=8/3\)</span></p>
 </section>
 <section id="exercise-heun-method">
 <h3>Exercise: Heun method<a class="headerlink" href="#exercise-heun-method" title="Link to this heading">#</a></h3>
@@ -791,14 +1152,14 @@ ma = m\frac{dv}{dt} = m\frac{d^2x}{dt^2} = \sum F = f(t, x, v),
 <section id="solving-a-second-order-differential-equation">
 <h2>Solving a second order differential equation<a class="headerlink" href="#solving-a-second-order-differential-equation" title="Link to this heading">#</a></h2>
 <p>A typical second order example is the famous harmonic oscillator, described by</p>
-<div class="amsmath math notranslate nohighlight" id="equation-da7f4418-877d-4023-b7a2-1069952788c7">
-<span class="eqno">(53)<a class="headerlink" href="#equation-da7f4418-877d-4023-b7a2-1069952788c7" title="Permalink to this equation">#</a></span>\[\begin{equation}
+<div class="amsmath math notranslate nohighlight" id="equation-3f8d53ef-f610-430a-beb9-0ab910e76629">
+<span class="eqno">(54)<a class="headerlink" href="#equation-3f8d53ef-f610-430a-beb9-0ab910e76629" title="Permalink to this equation">#</a></span>\[\begin{equation}
 \frac{d^2x}{dt^2} + \omega^2 x = 0,
 \end{equation}\]</div>
 <p>which can be transformed into a system of 2 differential equations using the
 velocity, <span class="math notranslate nohighlight">\(v = dx/dt\)</span>, as <span class="math notranslate nohighlight">\(\vec y = (y_0, y_1) = (x, dx/dt) = (x, v)\)</span>,</p>
-<div class="amsmath math notranslate nohighlight" id="equation-b2b076e0-28c3-4f19-8727-7b14e86a9dc5">
-<span class="eqno">(54)<a class="headerlink" href="#equation-b2b076e0-28c3-4f19-8727-7b14e86a9dc5" title="Permalink to this equation">#</a></span>\[\begin{align}
+<div class="amsmath math notranslate nohighlight" id="equation-9b5ad730-a154-4be2-a76d-27bcebd53344">
+<span class="eqno">(55)<a class="headerlink" href="#equation-9b5ad730-a154-4be2-a76d-27bcebd53344" title="Permalink to this equation">#</a></span>\[\begin{align}
 \frac{dy_0}{dt} &amp;= \frac{dx}{dt} = v = y_1\\
 \frac{dy_1}{dt} &amp;= \frac{dv}{dt} = -\omega^2 x = -\omega^2 y_0.
 \end{align}\]</div>
@@ -824,6 +1185,14 @@ derivative interface uniform. For instance, our derivative funtcion could be a l
 <section id="solve-the-simple-harmonic-oscillator-energy-conservation-with-heun">
 <h4>Solve the simple harmonic oscillator: energy conservation with Heun<a class="headerlink" href="#solve-the-simple-harmonic-oscillator-energy-conservation-with-heun" title="Link to this heading">#</a></h4>
 <p>Do the same but with the Heun method</p>
+</section>
+<section id="phase-space">
+<h4>Phase space<a class="headerlink" href="#phase-space" title="Link to this heading">#</a></h4>
+<p>Plot <span class="math notranslate nohighlight">\(v_x\)</span> versus <span class="math notranslate nohighlight">\(x\)</span>. Can you predict the expected trajectory? do it for both euler and heun.</p>
+</section>
+<section id="streamlines">
+<h4>Streamlines<a class="headerlink" href="#streamlines" title="Link to this heading">#</a></h4>
+<p>Use matplotlib streamlines function to plot the phase space for many initial conditions. Do it for both the linear and nonlinear pendulum.</p>
 <p><a id="org248dc6c"></a></p>
 </section>
 </section>
@@ -954,8 +1323,174 @@ speed.</p></li>
 </ol>
 </section>
 </section>
-<section id="more-numerical-libs">
-<h2>More numerical libs<a class="headerlink" href="#more-numerical-libs" title="Link to this heading">#</a></h2>
+<section id="stiff-ordinary-differential-equations">
+<h2>Stiff ordinary differential equations<a class="headerlink" href="#stiff-ordinary-differential-equations" title="Link to this heading">#</a></h2>
+<p>So far we have applied Euler and Runge-Kutta methods to <em>non-stiff</em> problems, where a reasonable step size <span class="math notranslate nohighlight">\(h\)</span> gives accurate results. Many physical systems, however, involve processes that evolve on <strong>vastly different timescales simultaneously</strong>. Such systems are called <em>stiff</em>, and they cause explicit methods to fail unless <span class="math notranslate nohighlight">\(h\)</span> is made impractically small.</p>
+<section id="what-makes-a-system-stiff">
+<h3>What makes a system stiff?<a class="headerlink" href="#what-makes-a-system-stiff" title="Link to this heading">#</a></h3>
+<p>Consider a system with two coupled processes: a fast one with characteristic time <span class="math notranslate nohighlight">\(\tau_{\text{fast}}\)</span> and a slow one with <span class="math notranslate nohighlight">\(\tau_{\text{slow}}\)</span>. The <strong>stiffness ratio</strong> is defined as</p>
+<div class="math notranslate nohighlight">
+\[
+S = \frac{\tau_{\text{slow}}}{\tau_{\text{fast}}} \gg 1.
+\]</div>
+<p>The fast component forces the step size <span class="math notranslate nohighlight">\(h \lesssim \tau_{\text{fast}}\)</span> for stability, even when you only care about the slow dynamics. You end up taking millions of steps to resolve a solution that changes slowly.</p>
+<div class="note admonition">
+<p class="admonition-title">Physical examples of stiff systems</p>
+<ul class="simple">
+<li><p><strong>Chemical kinetics</strong>: reactions with rate constants differing by factors of <span class="math notranslate nohighlight">\(10^6\)</span> or more (e.g., combustion, atmospheric chemistry).</p></li>
+<li><p><strong>RC circuits</strong>: a circuit with both nanosecond and millisecond time constants.</p></li>
+<li><p><strong>Molecular dynamics</strong>: bond vibrations (<span class="math notranslate nohighlight">\(\sim 10^{-14}\)</span> s) alongside diffusion (<span class="math notranslate nohighlight">\(\sim 10^{-9}\)</span> s).</p></li>
+<li><p><strong>Radiation–hydrodynamics</strong>: photon mean-free-path steps vs. fluid sound-crossing times.</p></li>
+</ul>
+</div>
+</section>
+<section id="a-canonical-stiff-example">
+<h3>A canonical stiff example<a class="headerlink" href="#a-canonical-stiff-example" title="Link to this heading">#</a></h3>
+<p>The following scalar ODE is the standard stiffness test case:</p>
+<div class="math notranslate nohighlight">
+\[
+\frac{dy}{dt} = -\lambda\, y, \qquad y(0) = 1,
+\]</div>
+<p>with exact solution <span class="math notranslate nohighlight">\(y(t) = e^{-\lambda t}\)</span>. For large <span class="math notranslate nohighlight">\(\lambda\)</span> the solution <em>decays quickly to zero and stays there</em>, yet explicit methods require <span class="math notranslate nohighlight">\(h &lt; 2/\lambda\)</span> for stability. When <span class="math notranslate nohighlight">\(\lambda = 1000\)</span>, this means <span class="math notranslate nohighlight">\(h &lt; 0.002\)</span> even though the solution is essentially flat after <span class="math notranslate nohighlight">\(t \approx 0.01\)</span>.</p>
+<p>The Euler update gives</p>
+<div class="math notranslate nohighlight">
+\[
+y_{n+1} = y_n - \lambda h \, y_n = (1 - \lambda h)\, y_n.
+\]</div>
+<p>For the numerical solution to remain bounded we need <span class="math notranslate nohighlight">\(|1 - \lambda h| \leq 1\)</span>, i.e. <span class="math notranslate nohighlight">\(h \leq 2/\lambda\)</span>. RK4 has a slightly wider stability region but the same fundamental constraint: both are <strong>explicit</strong> methods, and explicit methods have finite stability regions.</p>
+</section>
+<section id="the-stability-region-perspective">
+<h3>The stability region perspective<a class="headerlink" href="#the-stability-region-perspective" title="Link to this heading">#</a></h3>
+<p>The stability of a method applied to <span class="math notranslate nohighlight">\(\dot y = \lambda y\)</span> (with <span class="math notranslate nohighlight">\(\lambda \in \mathbb{C}\)</span>) is characterized by the set of <span class="math notranslate nohighlight">\(z = h\lambda\)</span> for which the numerical solution remains bounded. For the Euler method this is the disk <span class="math notranslate nohighlight">\(|1 + z| \leq 1\)</span>, entirely in the left half-plane. For RK4 the region is larger but still bounded.</p>
+<p>A stiff problem places <span class="math notranslate nohighlight">\(h\lambda_{\text{fast}}\)</span> far into the left half-plane. To keep it inside the stability region, <span class="math notranslate nohighlight">\(h\)</span> must be tiny — even if the solution of interest evolves on a timescale <span class="math notranslate nohighlight">\(1/\lambda_{\text{slow}} \gg 1/\lambda_{\text{fast}}\)</span>.</p>
+</section>
+<section id="implicit-methods-the-cure-for-stiffness">
+<h3>Implicit methods: the cure for stiffness<a class="headerlink" href="#implicit-methods-the-cure-for-stiffness" title="Link to this heading">#</a></h3>
+<p><strong>Implicit</strong> (or <em>backward</em>) methods evaluate the right-hand side at the <em>unknown</em> future time, trading a linear solve for unconditional stability.</p>
+</section>
+<section id="backward-euler-implicit-euler">
+<h3>Backward Euler (implicit Euler)<a class="headerlink" href="#backward-euler-implicit-euler" title="Link to this heading">#</a></h3>
+<div class="math notranslate nohighlight">
+\[
+\vec y_{n+1} = \vec y_n + h\, \vec f(t_{n+1},\, \vec y_{n+1}).
+\]</div>
+<p>For the scalar test case this gives <span class="math notranslate nohighlight">\(y_{n+1} = y_n / (1 + \lambda h)\)</span>, which is bounded for <strong>any</strong> <span class="math notranslate nohighlight">\(h &gt; 0\)</span>. The stability region covers the entire left half-plane — the method is <em>A-stable</em>.</p>
+<section id="non-linear-case-for-implicit-euler">
+<h4>Non linear case for implicit euler<a class="headerlink" href="#non-linear-case-for-implicit-euler" title="Link to this heading">#</a></h4>
+<p>For nonlinear systems, you can’t rearrange algebraically, so at each timestep you solve a nonlinear equation  <span class="math notranslate nohighlight">\(G(y_{n+1}) = 0\)</span> where <span class="math notranslate nohighlight">\(G(u) = u− y_n − h f(t_{n+1},u)\)</span> . The standard approach is Newton’s method:</p>
+<div class="amsmath math notranslate nohighlight" id="equation-e743ad08-5e66-48a5-86ba-3b938d119c9b">
+<span class="eqno">(56)<a class="headerlink" href="#equation-e743ad08-5e66-48a5-86ba-3b938d119c9b" title="Permalink to this equation">#</a></span>\[\begin{align}
+u^{(k+1)} &amp;= u^{(k)} - \frac{G\!\left(u^{(k)}\right)}{G'\!\left(u^{(k)}\right)} \\
+&amp;= u^{(k)} - \frac{u^{(k)} - y_n -h\,f\!\left(t_{n+1},u^{(k)}\right)}{1-h\,\left.\dfrac{\partial f}{\partial y}\right|_{u^{(k)}}},
+\end{align}\]</div>
+<p>starting from <span class="math notranslate nohighlight">\(u^{(0)} = y_n\)</span>, iterating until convergence. This is why implicit methods require the Jacobian <span class="math notranslate nohighlight">\(\partial f/\partial y\)</span>, which is the cost to pay for the additional stability.</p>
+</section>
+</section>
+<section id="the-trapezoidal-rule-cranknicolson">
+<h3>The trapezoidal rule (Crank–Nicolson)<a class="headerlink" href="#the-trapezoidal-rule-cranknicolson" title="Link to this heading">#</a></h3>
+<div class="math notranslate nohighlight">
+\[
+\vec y_{n+1} = \vec y_n + \frac{h}{2}\left[\vec f(t_n, \vec y_n) + \vec f(t_{n+1}, \vec y_{n+1})\right].
+\]</div>
+<p>Also A-stable and second-order accurate. This is the workhorse of many PDE solvers (heat equation, diffusion).</p>
+</section>
+<section id="backward-differentiation-formulas-bdf">
+<h3>Backward differentiation formulas (BDF)<a class="headerlink" href="#backward-differentiation-formulas-bdf" title="Link to this heading">#</a></h3>
+<p>BDF methods use several past values to achieve higher order while remaining A-stable (or nearly so). BDF2 is</p>
+<div class="math notranslate nohighlight">
+\[
+y_{n+1} = \frac{4}{3}y_n - \frac{1}{3}y_{n-1} + \frac{2h}{3} f(t_{n+1}, y_{n+1}).
+\]</div>
+<p>Orders 1–6 are used in practice. <strong>CVODE</strong> (part of SUNDIALS) and <strong>LSODA</strong> implement adaptive-order BDF methods and are the standard tools for stiff ODE systems in scientific computing.</p>
+</section>
+<section id="stiffness-detection-and-adaptive-solvers">
+<h3>Stiffness detection and adaptive solvers<a class="headerlink" href="#stiffness-detection-and-adaptive-solvers" title="Link to this heading">#</a></h3>
+<p>Modern libraries (odeint’s <code class="docutils literal notranslate"><span class="pre">rosenbrock4</span></code>, CVODE, LSODA, SciPy’s <code class="docutils literal notranslate"><span class="pre">solve_ivp</span></code> with <code class="docutils literal notranslate"><span class="pre">method='Radau'</span></code> or <code class="docutils literal notranslate"><span class="pre">'BDF'</span></code>) detect stiffness automatically by monitoring the Jacobian <span class="math notranslate nohighlight">\(\partial f / \partial y\)</span> and switching between explicit and implicit integrators as needed.</p>
+<p>In C++ you can use <code class="docutils literal notranslate"><span class="pre">boost::numeric::odeint</span></code> with an implicit stepper:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;boost/numeric/odeint.hpp&gt;</span>
+<span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">boost</span><span class="o">::</span><span class="nn">numeric</span><span class="o">::</span><span class="nn">odeint</span><span class="p">;</span>
+
+<span class="k">typedef</span><span class="w"> </span><span class="n">boost</span><span class="o">::</span><span class="n">numeric</span><span class="o">::</span><span class="n">ublas</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="w"> </span><span class="n">state_t</span><span class="p">;</span>
+<span class="k">typedef</span><span class="w"> </span><span class="n">boost</span><span class="o">::</span><span class="n">numeric</span><span class="o">::</span><span class="n">ublas</span><span class="o">::</span><span class="n">matrix</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="w"> </span><span class="n">matrix_t</span><span class="p">;</span>
+
+<span class="c1">// Define system and its Jacobian, then:</span>
+<span class="n">rosenbrock4</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="w"> </span><span class="n">stepper</span><span class="p">;</span>
+<span class="n">integrate_adaptive</span><span class="p">(</span><span class="n">make_controlled</span><span class="p">(</span><span class="mf">1e-6</span><span class="p">,</span><span class="w"> </span><span class="mf">1e-6</span><span class="p">,</span><span class="w"> </span><span class="n">stepper</span><span class="p">),</span>
+<span class="w">                   </span><span class="n">std</span><span class="o">::</span><span class="n">make_pair</span><span class="p">(</span><span class="n">fderiv</span><span class="p">,</span><span class="w"> </span><span class="n">fjacobian</span><span class="p">),</span>
+<span class="w">                   </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="n">t0</span><span class="p">,</span><span class="w"> </span><span class="n">tf</span><span class="p">,</span><span class="w"> </span><span class="n">dt_init</span><span class="p">,</span><span class="w"> </span><span class="n">writer</span><span class="p">);</span>
+</pre></div>
+</div>
+</section>
+<section id="summary-when-to-use-which-method">
+<h3>Summary: when to use which method<a class="headerlink" href="#summary-when-to-use-which-method" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Situation</p></th>
+<th class="head"><p>Recommended method</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Non-stiff, accuracy matters</p></td>
+<td><p>RK4 or RK45 (Dormand–Prince)</p></td>
+</tr>
+<tr class="row-odd"><td><p>Mildly stiff</p></td>
+<td><p>Trapezoidal / Crank–Nicolson</p></td>
+</tr>
+<tr class="row-even"><td><p>Stiff, moderate size</p></td>
+<td><p>BDF2–BDF6 (CVODE, LSODA)</p></td>
+</tr>
+<tr class="row-odd"><td><p>Very stiff, large Jacobian</p></td>
+<td><p>Rosenbrock or implicit Runge–Kutta</p></td>
+</tr>
+<tr class="row-even"><td><p>Unknown stiffness</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">LSODA</span></code> (switches automatically)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="id3">
+<h3>Exercises<a class="headerlink" href="#id3" title="Link to this heading">#</a></h3>
+<ol class="arabic simple">
+<li><p>Solve <span class="math notranslate nohighlight">\(\dot y = -1000\,y + 3000 - 2000\,e^{-t}\)</span>, <span class="math notranslate nohighlight">\(y(0)=0\)</span> (exact: <span class="math notranslate nohighlight">\(y = 3 - 0.998\,e^{-1000t} - 2.002\,e^{-t}\)</span>) with Euler using <span class="math notranslate nohighlight">\(h = 0.1, 0.01, 0.001\)</span>. At what <span class="math notranslate nohighlight">\(h\)</span> does the solution blow up? Compare with the implicit Euler result.</p></li>
+<li><p>Implement the trapezoidal rule for the harmonic oscillator. Does it conserve energy better than Euler? (Hint: it is symplectic in the linear case.)</p></li>
+<li><p>Use <code class="docutils literal notranslate"><span class="pre">boost::numeric::odeint</span></code>’s <code class="docutils literal notranslate"><span class="pre">rosenbrock4</span></code> stepper on the Robertson chemical kinetics problem:
+$<span class="math notranslate nohighlight">\(\dot y_1 = -0.04\,y_1 + 10^4 y_2 y_3, \quad \dot y_2 = 0.04\,y_1 - 10^4 y_2 y_3 - 3\times10^7 y_2^2, \quad \dot y_3 = 3\times10^7 y_2^2.\)</span>$
+Compare the number of function evaluations required by RK4 vs. <code class="docutils literal notranslate"><span class="pre">rosenbrock4</span></code>.</p></li>
+</ol>
+<p><a id="orgc1f4cf1"></a></p>
+</section>
+</section>
+<section id="modelling-a-bouncing-ball-and-an-introduction-to-oop">
+<h2>Modelling a bouncing ball and an introduction to OOP<a class="headerlink" href="#modelling-a-bouncing-ball-and-an-introduction-to-oop" title="Link to this heading">#</a></h2>
+<p>Now, we would like to model a ball bouncing on the floor. In this case, the
+derivatives function will get more complicated since the force with the floor is
+not present always, only when there is a collision with it. To model this
+interaction, we could follow the traditional way to do it by using the
+overlapping lenght <span class="math notranslate nohighlight">\(\delta\)</span>, which for a ball of radius <span class="math notranslate nohighlight">\(r\)</span> and height <span class="math notranslate nohighlight">\(R_z\)</span> can
+be computed as <span class="math notranslate nohighlight">\(\delta  = r - R_z\)</span>. A collision with the wall will happen only
+when <span class="math notranslate nohighlight">\(\delta &gt; 0\)</span>. What could be now the derivative function?</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="w">      </span><span class="c1">// TODO: derivatives lambda</span>
+</pre></div>
+</div>
+<p>Now imagine that we want to simulate the same particle but in three dimensions.
+Then our state vector will need 6 components (three for the position, three for
+the velocity). What if we need 2, or 3, or <span class="math notranslate nohighlight">\(N\)</span> particles? then we will have some
+disadvantages by using our current approach, like:</p>
+<ul class="simple">
+<li><p>The state vector will need to have <span class="math notranslate nohighlight">\(6N\)</span> components.</p></li>
+<li><p>The actual indexing will be cumbersome.</p></li>
+<li><p>The current force computation is done several times per time step (like in
+RK4, where we need 4 force evaluations). This will be slow for systems where
+computing the force is expensive.</p></li>
+</ul>
+<p>To solve these problems in modelling, we will change our approach to more
+convenient Object Oriented Approach for the particles, and we will also use some
+integration algorithms better suited for this kind of problemas, like the
+leap-frog or verlet integration algorithms. This will be done in the next chapter</p>
+</section>
+<section id="extra-more-numerical-libs">
+<h2>EXTRA: More numerical libs<a class="headerlink" href="#extra-more-numerical-libs" title="Link to this heading">#</a></h2>
 <ul class="simple">
 <li><p>Odeint: Odeint is a modern and fast library that provides a variety of ODE solvers, including Runge-Kutta methods, Adams-Bashforth methods, and backward difference formulas. It is also very flexible and can be used with a variety of different data structures and numerical types.</p>
 <ul>
@@ -1099,35 +1634,6 @@ Here is an examples for using this library (see also <a class="github reference 
 </ul>
 </li>
 </ul>
-<p><a id="orgc1f4cf1"></a></p>
-</section>
-<section id="modelling-a-bouncing-ball-and-an-introduction-to-oop">
-<h2>Modelling a bouncing ball and an introduction to OOP<a class="headerlink" href="#modelling-a-bouncing-ball-and-an-introduction-to-oop" title="Link to this heading">#</a></h2>
-<p>Now, we would like to model a ball bouncing on the floor. In this case, the
-derivatives function will get more complicated since the force with the floor is
-not present always, only when there is a collision with it. To model this
-interaction, we could follow the traditional way to do it by using the
-overlapping lenght <span class="math notranslate nohighlight">\(\delta\)</span>, which for a ball of radius <span class="math notranslate nohighlight">\(r\)</span> and height <span class="math notranslate nohighlight">\(R_z\)</span> can
-be computed as <span class="math notranslate nohighlight">\(\delta  = r - R_z\)</span>. A collision with the wall will happen only
-when <span class="math notranslate nohighlight">\(\delta &gt; 0\)</span>. What could be now the derivative function?</p>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="w">      </span><span class="c1">// TODO: derivatives lambda</span>
-</pre></div>
-</div>
-<p>Now imagine that we want to simulate the same particle but in three dimensions.
-Then our state vector will need 6 components (three for the position, three for
-the velocity). What if we need 2, or 3, or <span class="math notranslate nohighlight">\(N\)</span> particles? then we will have some
-disadvantages by using our current approach, like:</p>
-<ul class="simple">
-<li><p>The state vector will need to have <span class="math notranslate nohighlight">\(6N\)</span> components.</p></li>
-<li><p>The actual indexing will be cumbersome.</p></li>
-<li><p>The current force computation is done several times per time step (like in
-RK4, where we need 4 force evaluations). This will be slow for systems where
-computing the force is expensive.</p></li>
-</ul>
-<p>To solve these problems in modelling, we will change our approach to more
-convenient Object Oriented Approach for the particles, and we will also use some
-integration algorithms better suited for this kind of problemas, like the
-leap-frog or verlet integration algorithms. This will be done in the next chapter</p>
 </section>
 </section>
 
@@ -1197,6 +1703,8 @@ leap-frog or verlet integration algorithms. This will be done in the next chapte
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why-do-we-need-numerical-methods">Why Do We Need Numerical Methods?</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example-the-three-body-problem">Example: The Three-Body Problem</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#first-order-algorithm-the-euler-algorithm">First order algorithm: The Euler algorithm</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#second-order-algorithm-the-heun-method">Second order algorithm : The Heun method</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fourth-order-algorithm-runge-kutta-algorithm-rk4">Fourth order algorithm: Runge-Kutta algorithm RK4</a></li>
@@ -1211,6 +1719,8 @@ leap-frog or verlet integration algorithms. This will be done in the next chapte
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#exercises">Exercises</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#solve-the-simple-harmonic-oscillator-energy-conservation">Solve the simple harmonic oscillator: energy conservation</a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#solve-the-simple-harmonic-oscillator-energy-conservation-with-heun">Solve the simple harmonic oscillator: energy conservation with Heun</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#phase-space">Phase space</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#streamlines">Streamlines</a></li>
 </ul>
 </li>
 </ul>
@@ -1224,8 +1734,24 @@ leap-frog or verlet integration algorithms. This will be done in the next chapte
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">Exercises</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#more-numerical-libs">More numerical libs</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#stiff-ordinary-differential-equations">Stiff ordinary differential equations</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#what-makes-a-system-stiff">What makes a system stiff?</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#a-canonical-stiff-example">A canonical stiff example</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-stability-region-perspective">The stability region perspective</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#implicit-methods-the-cure-for-stiffness">Implicit methods: the cure for stiffness</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#backward-euler-implicit-euler">Backward Euler (implicit Euler)</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#non-linear-case-for-implicit-euler">Non linear case for implicit euler</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-trapezoidal-rule-cranknicolson">The trapezoidal rule (Crank–Nicolson)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#backward-differentiation-formulas-bdf">Backward differentiation formulas (BDF)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#stiffness-detection-and-adaptive-solvers">Stiffness detection and adaptive solvers</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#summary-when-to-use-which-method">Summary: when to use which method</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">Exercises</a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#modelling-a-bouncing-ball-and-an-introduction-to-oop">Modelling a bouncing ball and an introduction to OOP</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#extra-more-numerical-libs">EXTRA: More numerical libs</a></li>
 </ul>
   </nav></div>
 
