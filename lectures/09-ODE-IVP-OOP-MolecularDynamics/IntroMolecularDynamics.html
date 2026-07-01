@@ -518,12 +518,17 @@
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#adding-left-and-right-walls">Adding left and right walls</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-better-visualization-and-analysis-using-paraview"><strong>A better visualization and analysis: using Paraview</strong></a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#printing-the-data-in-a-suitable-format">Printing the data in a suitable format</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#better-visualization-real-time-postprocessing-analysis">Better visualization real time, postprocessing, analysis</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sfml-v3-realtime-visualization">SFML v3: Realtime visualization</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#paraview-postprocessing">Paraview: Postprocessing</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#printing-to-legacy-vtk-format">Printing to legacy vtk format</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#printing-to-a-csv-file-deprecated">Printing to a csv file (deprecated)</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#final-main-implementation-with-real-time-visualization-with-sfml">Final main implementation with real time visualization with SFML</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#loading-the-data-into-paraview">Loading the data into paraview</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#real-time-visualization-with-sfml">Real time visualization with SFML</a></li>
 </ul>
             </nav>
         </div>
@@ -673,8 +678,8 @@ optimized velocity verlet and so on. They try to integrate the evolution with a
 high order while reducing the number of force evaluations per time step. In
 particular, the leap-frog algorithm can be written as
 (<a class="reference external" href="https://en.wikipedia.org/wiki/Leapfrog_integration">https://en.wikipedia.org/wiki/Leapfrog_integration</a>)</p>
-<div class="amsmath math notranslate nohighlight" id="equation-88a5e669-744c-4326-95f5-2e561ff340b3">
-<span class="eqno">(57)<a class="headerlink" href="#equation-88a5e669-744c-4326-95f5-2e561ff340b3" title="Permalink to this equation">#</a></span>\[\begin{align}
+<div class="amsmath math notranslate nohighlight" id="equation-a2487f61-ace7-42e0-a996-d4400383dc2e">
+<span class="eqno">(57)<a class="headerlink" href="#equation-a2487f61-ace7-42e0-a996-d4400383dc2e" title="Permalink to this equation">#</a></span>\[\begin{align}
 \vec V (t + \delta t/2) &amp;= \vec V (t - \delta t/2) + \vec F(t) \delta t/m + O(\delta t^3),\\
 \vec R(t+\delta t) &amp;= \vec R(t) + \vec V (t + \delta t/2) \delta t + O(\delta t^3).
 \end{align}\]</div>
@@ -682,15 +687,15 @@ particular, the leap-frog algorithm can be written as
 and symplectic. One important detail for the implementation: To perform the
 first step, you need to put your variables in the correct time. If we put t=0,
 the next step would be</p>
-<div class="amsmath math notranslate nohighlight" id="equation-4acfb5f2-55bc-48ac-b36c-c1033c2aa67c">
-<span class="eqno">(58)<a class="headerlink" href="#equation-4acfb5f2-55bc-48ac-b36c-c1033c2aa67c" title="Permalink to this equation">#</a></span>\[\begin{align}
+<div class="amsmath math notranslate nohighlight" id="equation-02b608bd-bc31-4413-887f-a835aae9acaf">
+<span class="eqno">(58)<a class="headerlink" href="#equation-02b608bd-bc31-4413-887f-a835aae9acaf" title="Permalink to this equation">#</a></span>\[\begin{align}
 \vec V (0 + \delta t/2) &amp;= \vec V (0 - \delta t/2) + \vec F(0) \delta t/m + O(\delta t^3),\\
 \vec R(0+\delta t) &amp;= \vec R(0) + \vec V (0 + \delta t/2) \delta t + O(\delta t^3).
 \end{align}\]</div>
 <p>Therefore, we will need first to move the velocity from time 0 to time <span class="math notranslate nohighlight">\(0 -
 \delta t\)</span>. We could do that as follows</p>
-<div class="amsmath math notranslate nohighlight" id="equation-dd31c79f-2932-4bfb-9cc0-27be99549049">
-<span class="eqno">(59)<a class="headerlink" href="#equation-dd31c79f-2932-4bfb-9cc0-27be99549049" title="Permalink to this equation">#</a></span>\[\begin{equation}
+<div class="amsmath math notranslate nohighlight" id="equation-118bbd51-e2cf-45de-a065-e3d787954148">
+<span class="eqno">(59)<a class="headerlink" href="#equation-118bbd51-e2cf-45de-a065-e3d787954148" title="Permalink to this equation">#</a></span>\[\begin{equation}
 \vec V(0 - \delta t/2) = \vec V(0) - \delta t \vec F(0)/2m.
 \end{equation}\]</div>
 <p><a id="orgd0444a6"></a></p>
@@ -733,14 +738,14 @@ class (only use <code class="docutils literal notranslate"><span class="pre">int
 <p>In this case, we will play with keeping the particle inside a disc (sphere) of radius <code class="docutils literal notranslate"><span class="pre">REXT</span></code>, centering at the origin for simplicity. How to do that? at each step, we check the distance of the external border of our particle, and if it is larger than the external radius, we move the particle back to the inside of the region and invert its normal velocity. To do this, we will create a new class to manage this kind of boundaries, called <code class="docutils literal notranslate"><span class="pre">Boundary</span></code>. It will have the needed parameters and will apply the needed constraints.</p>
 <p>In our case, we want to keep all particles inside the sphere. To do so, for each particle, we can compute its external border with the spherical boundary, and detect if the particle is outside. Then, we can correct the particle position in the normal direction towards the center, and also invert the velocity, even adding a restitution coefficient.</p>
 <p>The particle position relative to the sphere center is <span class="math notranslate nohighlight">\(\vec R' = \vec R - \vec C\)</span>.  If <span class="math notranslate nohighlight">\(\delta = R'+ r - r_b&gt; 0\)</span>, where <span class="math notranslate nohighlight">\(r\)</span> is the sphere radius, and <span class="math notranslate nohighlight">\(r_b\)</span> is the boundary radius, then the particle is outside the sphere, and we need to both correct back it’s position and invert the normal velocity as (deduce it)</p>
-<div class="amsmath math notranslate nohighlight" id="equation-54f08dd5-f732-4534-bbb5-c70f33d14096">
-<span class="eqno">(60)<a class="headerlink" href="#equation-54f08dd5-f732-4534-bbb5-c70f33d14096" title="Permalink to this equation">#</a></span>\[\begin{align}
+<div class="amsmath math notranslate nohighlight" id="equation-71a05dfc-4a4a-49b6-8645-4e98fc24c68a">
+<span class="eqno">(60)<a class="headerlink" href="#equation-71a05dfc-4a4a-49b6-8645-4e98fc24c68a" title="Permalink to this equation">#</a></span>\[\begin{align}
 \vec R &amp;= \vec R - \delta\hat n, \\
 \vec V &amp;= \vec V - (1+e)(\vec V \cdot \hat n)\hat n,
 \end{align}\]</div>
 <p>where</p>
-<div class="amsmath math notranslate nohighlight" id="equation-7584eb23-4681-413d-8833-a115d7680a03">
-<span class="eqno">(61)<a class="headerlink" href="#equation-7584eb23-4681-413d-8833-a115d7680a03" title="Permalink to this equation">#</a></span>\[\begin{equation}
+<div class="amsmath math notranslate nohighlight" id="equation-f6044089-53f5-4700-8c35-1ac129300d24">
+<span class="eqno">(61)<a class="headerlink" href="#equation-f6044089-53f5-4700-8c35-1ac129300d24" title="Permalink to this equation">#</a></span>\[\begin{equation}
 \hat n = \dfrac{\vec R'}{R'}
 \end{equation}\]</div>
 <p>is the normal vector from the inner boundary side to the particle, and <span class="math notranslate nohighlight">\(e\)</span> is the restitution coefficient.</p>
@@ -825,7 +830,7 @@ templates). To do so, complete the following code:</p>
 <p>Now we are ready to perform our simulation, using everything in our main
 function,</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// main_md.cpp</span>
-<span class="c1">// g++ -std=c++17 particle.cpp main_md.cpp</span>
+<span class="c1">// g++ -std=c++23 particle.cpp main_md.cpp</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;particle.h&quot;</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;integrator.h&quot;</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;collider.h&quot;</span>
@@ -902,19 +907,19 @@ scales with the number of particles?</p>
 <p>Here we will implemement a physical force among particles. But, still, how would you do it using constraints?</p>
 <p>If two particles are colliding, with interpenetration <span class="math notranslate nohighlight">\(\delta\)</span>, then we can
 model the force that particle <span class="math notranslate nohighlight">\(i\)</span> exerts on particle <span class="math notranslate nohighlight">\(j\)</span> as,</p>
-<div class="amsmath math notranslate nohighlight" id="equation-0ec7b58e-3593-464c-b19d-2128b2afffee">
-<span class="eqno">(62)<a class="headerlink" href="#equation-0ec7b58e-3593-464c-b19d-2128b2afffee" title="Permalink to this equation">#</a></span>\[\begin{equation}
+<div class="amsmath math notranslate nohighlight" id="equation-2bf12543-f469-4cdb-a134-c179bbcfc764">
+<span class="eqno">(62)<a class="headerlink" href="#equation-2bf12543-f469-4cdb-a134-c179bbcfc764" title="Permalink to this equation">#</a></span>\[\begin{equation}
 \vec F_{ij} = k \delta \hat n_{ij},
 \end{equation}\]</div>
 <p>where <span class="math notranslate nohighlight">\(k\)</span> is a constant proportional to the effective Young modulus, and <span class="math notranslate nohighlight">\(\hat
 n_{ij}\)</span> is the normal vector from particle <span class="math notranslate nohighlight">\(i\)</span> to <span class="math notranslate nohighlight">\(j\)</span>, that is</p>
-<div class="amsmath math notranslate nohighlight" id="equation-9b03e8d6-d63e-4c6c-b506-01e3730c1def">
-<span class="eqno">(63)<a class="headerlink" href="#equation-9b03e8d6-d63e-4c6c-b506-01e3730c1def" title="Permalink to this equation">#</a></span>\[\begin{equation}
+<div class="amsmath math notranslate nohighlight" id="equation-880bdf17-a3ed-46d5-8023-34f02bd02063">
+<span class="eqno">(63)<a class="headerlink" href="#equation-880bdf17-a3ed-46d5-8023-34f02bd02063" title="Permalink to this equation">#</a></span>\[\begin{equation}
 \hat n_{ij} = \frac{\vec R_{ij}}{|\vec R_{ij}|},
 \end{equation}\]</div>
 <p>with <span class="math notranslate nohighlight">\(\vec R_{ij} = \vec R_j - \vec R_i\)</span>, and</p>
-<div class="amsmath math notranslate nohighlight" id="equation-a0451113-582f-4565-884f-6976936ed044">
-<span class="eqno">(64)<a class="headerlink" href="#equation-a0451113-582f-4565-884f-6976936ed044" title="Permalink to this equation">#</a></span>\[\begin{equation}
+<div class="amsmath math notranslate nohighlight" id="equation-d979e952-6542-4c56-bdf8-32c236f90db0">
+<span class="eqno">(64)<a class="headerlink" href="#equation-d979e952-6542-4c56-bdf8-32c236f90db0" title="Permalink to this equation">#</a></span>\[\begin{equation}
 \delta = r_i + r_j - |\vec R_{ij}|.
 \end{equation}\]</div>
 <p>For a more realistic force model, check
@@ -933,40 +938,361 @@ the beginning. Add collisions with left and right walls. You will need to specif
 Put the left(right) wall at -L/2(L/2).</p>
 </section>
 </section>
-<section id="a-better-visualization-and-analysis-using-paraview">
-<h2><strong>A better visualization and analysis: using Paraview</strong><a class="headerlink" href="#a-better-visualization-and-analysis-using-paraview" title="Link to this heading">#</a></h2>
-<p><a class="reference external" href="https://www.paraview.org/">Paraview</a> is “the world’s leading open source post-processing visualization engine. It integrates with your existing tools and workflows, allowing you to build visualizations to analyze data quickly. With its open, flexible, and intuitive user interface, you can analyze extremely large datasets interactively in 3D or programmatically using ParaView’s batch processing.” . Paraview can run on single laptops, or large scale clusters. You can use it to not only visualize but also analyse huge amounts of data. It has a large list of scientific data <a class="reference external" href="https://www.paraview.org/Wiki/ParaView/Users_Guide/List_of_readers">readers</a>. Notice that there are more visualization tools, like visit, ovito, pymol, vmd, and so on. At the end it is important that you print your data in a format that can be read by these programs, like text, or better, something like vtk, hdf5, and so on.</p>
+<section id="better-visualization-real-time-postprocessing-analysis">
+<h2>Better visualization real time, postprocessing, analysis<a class="headerlink" href="#better-visualization-real-time-postprocessing-analysis" title="Link to this heading">#</a></h2>
+<p>You can visualize the system in several ways. Maybe you want an anmation in real time that runs while the simulation runs. Or you want to perform some visualization and analysis a posteriori, in post-processing, which implies that you need to print data in a suitable way during simulation. In this section we will use the following to do so:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://www.sfml-dev.org/">SFML</a>: This is a powerful yet simple library that we will use for a simple 2D real time visualization.</p></li>
+<li><p><a class="reference external" href="https://www.paraview.org/">Paraview</a>: this is “the world’s leading open source post-processing visualization engine. We will print information in a suitable format (see <a class="reference external" href="https://www.paraview.org/paraview-docs/v5.13.2/python/paraview.servermanager_proxies.html">https://www.paraview.org/paraview-docs/v5.13.2/python/paraview.servermanager_proxies.html</a>) to be later processed in paraview.</p></li>
+</ul>
+<section id="sfml-v3-realtime-visualization">
+<h3>SFML v3: Realtime visualization<a class="headerlink" href="#sfml-v3-realtime-visualization" title="Link to this heading">#</a></h3>
+<p>For using SFML, we will isolate the interface in a visualization class, so the main program just calls the interface.</p>
+<p>Here are our declaration and implementation files</p>
+<details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3">
+<summary class="sd-summary-title sd-card-header">
+<span class="sd-summary-text">visualizer.h (please click)</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="cp">#ifndef VISUALIZER_H</span>
+<span class="cp">#define VISUALIZER_H</span>
+
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;SFML/Graphics.hpp&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;vector&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;string&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;memory&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;particle.h&quot;</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Visualizer</span><span class="w"> </span><span class="p">{</span>
+<span class="k">private</span><span class="o">:</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">sf</span><span class="o">::</span><span class="n">RenderWindow</span><span class="o">&gt;</span><span class="w"> </span><span class="n">window</span><span class="p">;</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">sf</span><span class="o">::</span><span class="n">CircleShape</span><span class="o">&gt;</span><span class="w"> </span><span class="n">particle_shapes</span><span class="p">;</span>
+<span class="w">    </span><span class="n">sf</span><span class="o">::</span><span class="n">CircleShape</span><span class="w"> </span><span class="n">boundary_circle</span><span class="p">;</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="c1">// Settings</span>
+<span class="w">    </span><span class="kt">float</span><span class="w"> </span><span class="n">meters_to_pixels</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">width</span><span class="p">,</span><span class="w"> </span><span class="n">height</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">float</span><span class="w"> </span><span class="n">boundary_radius</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">float</span><span class="w"> </span><span class="n">boundary_cx</span><span class="p">,</span><span class="w"> </span><span class="n">boundary_cy</span><span class="p">;</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="c1">// Performance tracking</span>
+<span class="w">    </span><span class="n">sf</span><span class="o">::</span><span class="n">Clock</span><span class="w"> </span><span class="n">render_clock</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">frame_counter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span>
+<span class="k">public</span><span class="o">:</span>
+<span class="w">    </span><span class="c1">// Constructor</span>
+<span class="w">    </span><span class="n">Visualizer</span><span class="p">(</span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">width</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">800</span><span class="p">,</span><span class="w"> </span>
+<span class="w">               </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">height</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">600</span><span class="p">,</span><span class="w"> </span>
+<span class="w">               </span><span class="kt">float</span><span class="w"> </span><span class="n">scale</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">100.0f</span><span class="p">);</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="c1">// Destructor</span>
+<span class="w">    </span><span class="o">~</span><span class="n">Visualizer</span><span class="p">()</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">default</span><span class="p">;</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="c1">// Setup (call once before main loop)</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">initialize</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">Particle</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">bodies</span><span class="p">,</span>
+<span class="w">                   </span><span class="kt">float</span><span class="w"> </span><span class="n">boundary_radius</span><span class="p">,</span>
+<span class="w">                   </span><span class="kt">float</span><span class="w"> </span><span class="n">boundary_cx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0f</span><span class="p">,</span>
+<span class="w">                   </span><span class="kt">float</span><span class="w"> </span><span class="n">boundary_cy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0f</span><span class="p">);</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="c1">// Update and render (call each frame, returns false if window closed)</span>
+<span class="w">    </span><span class="kt">bool</span><span class="w"> </span><span class="nf">update_and_render</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">Particle</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">bodies</span><span class="p">,</span><span class="w"> </span>
+<span class="w">                          </span><span class="kt">double</span><span class="w"> </span><span class="n">time</span><span class="p">,</span><span class="w"> </span>
+<span class="w">                          </span><span class="kt">double</span><span class="w"> </span><span class="n">dt</span><span class="p">);</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="c1">// Query state</span>
+<span class="w">    </span><span class="kt">bool</span><span class="w"> </span><span class="nf">is_open</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="c1">// Get render time statistics</span>
+<span class="w">    </span><span class="kt">float</span><span class="w"> </span><span class="nf">get_last_render_time_ms</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="cp">#endif</span>
+</pre></div>
+</div>
+</div>
+</details><div class="highlight-default notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+<details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3">
+<summary class="sd-summary-title sd-card-header">
+<span class="sd-summary-text">visualizer.cpp (please click)</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;visualizer.h&quot;</span>
+
+<span class="n">Visualizer</span><span class="o">::</span><span class="n">Visualizer</span><span class="p">(</span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">h</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="n">scale</span><span class="p">)</span>
+<span class="w">    </span><span class="o">:</span><span class="w"> </span><span class="n">width</span><span class="p">(</span><span class="n">w</span><span class="p">),</span><span class="w"> </span><span class="n">height</span><span class="p">(</span><span class="n">h</span><span class="p">),</span><span class="w"> </span><span class="n">meters_to_pixels</span><span class="p">(</span><span class="n">scale</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="c1">// Create window (SFML 3 uses Vector2u)</span>
+<span class="w">    </span><span class="n">window</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">sf</span><span class="o">::</span><span class="n">RenderWindow</span><span class="o">&gt;</span><span class="p">(</span><span class="n">sf</span><span class="o">::</span><span class="n">VideoMode</span><span class="p">({</span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="n">h</span><span class="p">}),</span><span class="w"> </span><span class="s">&quot;Physics Simulation&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="n">window</span><span class="o">-&gt;</span><span class="n">setFramerateLimit</span><span class="p">(</span><span class="mi">120</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="n">Visualizer</span><span class="o">::</span><span class="n">initialize</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">Particle</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">bodies</span><span class="p">,</span>
+<span class="w">                           </span><span class="kt">float</span><span class="w"> </span><span class="n">b_radius</span><span class="p">,</span>
+<span class="w">                           </span><span class="kt">float</span><span class="w"> </span><span class="n">b_cx</span><span class="p">,</span>
+<span class="w">                           </span><span class="kt">float</span><span class="w"> </span><span class="n">b_cy</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">boundary_radius</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">b_radius</span><span class="p">;</span>
+<span class="w">    </span><span class="n">boundary_cx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">b_cx</span><span class="p">;</span>
+<span class="w">    </span><span class="n">boundary_cy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">b_cy</span><span class="p">;</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="c1">// Create particle shapes once</span>
+<span class="w">    </span><span class="n">particle_shapes</span><span class="p">.</span><span class="n">clear</span><span class="p">();</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="o">&amp;</span><span class="w"> </span><span class="n">body</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">bodies</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kt">float</span><span class="w"> </span><span class="n">pixel_radius</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">body</span><span class="p">.</span><span class="n">rad</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">meters_to_pixels</span><span class="p">;</span>
+<span class="w">        </span>
+<span class="w">        </span><span class="n">sf</span><span class="o">::</span><span class="n">CircleShape</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="n">pixel_radius</span><span class="p">);</span>
+<span class="w">        </span><span class="n">shape</span><span class="p">.</span><span class="n">setFillColor</span><span class="p">(</span><span class="n">sf</span><span class="o">::</span><span class="n">Color</span><span class="o">::</span><span class="n">Cyan</span><span class="p">);</span>
+<span class="w">        </span><span class="n">shape</span><span class="p">.</span><span class="n">setOrigin</span><span class="p">({</span><span class="n">pixel_radius</span><span class="p">,</span><span class="w"> </span><span class="n">pixel_radius</span><span class="p">});</span>
+<span class="w">        </span>
+<span class="w">        </span><span class="n">particle_shapes</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">shape</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="c1">// Create boundary circle</span>
+<span class="w">    </span><span class="kt">float</span><span class="w"> </span><span class="n">boundary_pixel_radius</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">boundary_radius</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">meters_to_pixels</span><span class="p">;</span>
+<span class="w">    </span><span class="n">boundary_circle</span><span class="p">.</span><span class="n">setRadius</span><span class="p">(</span><span class="n">boundary_pixel_radius</span><span class="p">);</span>
+<span class="w">    </span><span class="n">boundary_circle</span><span class="p">.</span><span class="n">setFillColor</span><span class="p">(</span><span class="n">sf</span><span class="o">::</span><span class="n">Color</span><span class="o">::</span><span class="n">Transparent</span><span class="p">);</span>
+<span class="w">    </span><span class="n">boundary_circle</span><span class="p">.</span><span class="n">setOutlineThickness</span><span class="p">(</span><span class="mf">2.f</span><span class="p">);</span>
+<span class="w">    </span><span class="n">boundary_circle</span><span class="p">.</span><span class="n">setOutlineColor</span><span class="p">(</span><span class="n">sf</span><span class="o">::</span><span class="n">Color</span><span class="o">::</span><span class="n">Red</span><span class="p">);</span>
+<span class="w">    </span><span class="n">boundary_circle</span><span class="p">.</span><span class="n">setOrigin</span><span class="p">({</span><span class="n">boundary_pixel_radius</span><span class="p">,</span><span class="w"> </span><span class="n">boundary_pixel_radius</span><span class="p">});</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="c1">// Position boundary at center offset</span>
+<span class="w">    </span><span class="n">sf</span><span class="o">::</span><span class="n">Vector2f</span><span class="w"> </span><span class="n">boundary_screen_pos</span><span class="p">;</span>
+<span class="w">    </span><span class="n">boundary_screen_pos</span><span class="p">.</span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">width</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mf">2.0f</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">(</span><span class="n">boundary_cx</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">meters_to_pixels</span><span class="p">);</span>
+<span class="w">    </span><span class="n">boundary_screen_pos</span><span class="p">.</span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">height</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mf">2.0f</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="p">(</span><span class="n">boundary_cy</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">meters_to_pixels</span><span class="p">);</span>
+<span class="w">    </span><span class="n">boundary_circle</span><span class="p">.</span><span class="n">setPosition</span><span class="p">(</span><span class="n">boundary_screen_pos</span><span class="p">);</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="c1">// Start render clock</span>
+<span class="w">    </span><span class="n">render_clock</span><span class="p">.</span><span class="n">restart</span><span class="p">();</span>
+<span class="w">    </span><span class="n">frame_counter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">bool</span><span class="w"> </span><span class="n">Visualizer</span><span class="o">::</span><span class="n">update_and_render</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">Particle</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">bodies</span><span class="p">,</span>
+<span class="w">                                   </span><span class="kt">double</span><span class="w"> </span><span class="n">time</span><span class="p">,</span>
+<span class="w">                                   </span><span class="kt">double</span><span class="w"> </span><span class="n">dt</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// Handle events (SFML 3 uses std::optional)</span>
+<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">event</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">window</span><span class="o">-&gt;</span><span class="n">pollEvent</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">event</span><span class="o">-&gt;</span><span class="n">is</span><span class="o">&lt;</span><span class="n">sf</span><span class="o">::</span><span class="n">Event</span><span class="o">::</span><span class="n">Closed</span><span class="o">&gt;</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">window</span><span class="o">-&gt;</span><span class="n">close</span><span class="p">();</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="c1">// Update particle positions only (no shape recreation)</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">size_t</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">bodies</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">particle_shapes</span><span class="p">.</span><span class="n">size</span><span class="p">();</span><span class="w"> </span><span class="o">++</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">sf</span><span class="o">::</span><span class="n">Vector2f</span><span class="w"> </span><span class="n">screen_pos</span><span class="p">;</span>
+<span class="w">        </span><span class="n">screen_pos</span><span class="p">.</span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">width</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mf">2.0f</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">(</span><span class="n">bodies</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">R</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">meters_to_pixels</span><span class="p">);</span>
+<span class="w">        </span><span class="n">screen_pos</span><span class="p">.</span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">height</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mf">2.0f</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="p">(</span><span class="n">bodies</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">R</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">meters_to_pixels</span><span class="p">);</span>
+<span class="w">        </span><span class="n">particle_shapes</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">setPosition</span><span class="p">(</span><span class="n">screen_pos</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="c1">// Clear screen</span>
+<span class="w">    </span><span class="n">window</span><span class="o">-&gt;</span><span class="n">clear</span><span class="p">(</span><span class="n">sf</span><span class="o">::</span><span class="n">Color</span><span class="o">::</span><span class="n">Black</span><span class="p">);</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="c1">// Draw boundary</span>
+<span class="w">    </span><span class="n">window</span><span class="o">-&gt;</span><span class="n">draw</span><span class="p">(</span><span class="n">boundary_circle</span><span class="p">);</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="c1">// Draw particles</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="o">&amp;</span><span class="w"> </span><span class="n">shape</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">particle_shapes</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">window</span><span class="o">-&gt;</span><span class="n">draw</span><span class="p">(</span><span class="n">shape</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="c1">// Display and reset clock</span>
+<span class="w">    </span><span class="n">window</span><span class="o">-&gt;</span><span class="n">display</span><span class="p">();</span>
+<span class="w">    </span><span class="n">frame_counter</span><span class="o">++</span><span class="p">;</span>
+<span class="w">    </span><span class="n">render_clock</span><span class="p">.</span><span class="n">restart</span><span class="p">();</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">window</span><span class="o">-&gt;</span><span class="n">isOpen</span><span class="p">();</span>
+<span class="p">}</span>
+
+<span class="kt">bool</span><span class="w"> </span><span class="n">Visualizer</span><span class="o">::</span><span class="n">is_open</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">window</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">window</span><span class="o">-&gt;</span><span class="n">isOpen</span><span class="p">();</span>
+<span class="p">}</span>
+
+<span class="kt">float</span><span class="w"> </span><span class="n">Visualizer</span><span class="o">::</span><span class="n">get_last_render_time_ms</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">render_clock</span><span class="p">.</span><span class="n">getElapsedTime</span><span class="p">().</span><span class="n">asMilliseconds</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</details><div class="highlight-default notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+<p>So, in the main function we will just make simple calls to the visualizer interface.</p>
+</section>
+<section id="paraview-postprocessing">
+<h3>Paraview: Postprocessing<a class="headerlink" href="#paraview-postprocessing" title="Link to this heading">#</a></h3>
+<p><a class="reference external" href="https://www.paraview.org">Paraview</a> is really powerful. “It integrates with your existing tools and workflows, allowing you to build visualizations to analyze data quickly. With its open, flexible, and intuitive user interface, you can analyze extremely large datasets interactively in 3D or programmatically using ParaView’s batch processing.” . Paraview can run on single laptops, or large scale clusters. You can use it to not only visualize but also analyse huge amounts of data. It has a large list of scientific data <a class="reference external" href="https://www.paraview.org/Wiki/ParaView/Users_Guide/List_of_readers">readers</a>. Notice that there are more visualization tools, like visit, ovito, pymol, vmd, and so on. At the end it is important that you print your data in a format that can be read by these programs, like text, or better, something like vtk, hdf5, and so on.</p>
 <p>Here, we will learn how to perform a very simple visualzation of our md data. We will need to :</p>
 <ol class="arabic simple">
 <li><p>Choose a format to print the data (text or binary? one file with all time steps or many files? which reader will we use? …)</p></li>
 <li><p>Run the simulation and print the data</p></li>
 <li><p>Use paraview to load the data, applying some filters to it.</p></li>
 </ol>
-<p>Let’s do it.</p>
-<section id="printing-the-data-in-a-suitable-format">
-<h3>Printing the data in a suitable format<a class="headerlink" href="#printing-the-data-in-a-suitable-format" title="Link to this heading">#</a></h3>
+<p>To keep things simple, we will just print ascii text using either the legacy vtk format, or even using cvs which is the easiest but consumes too much space.</p>
+<section id="printing-to-legacy-vtk-format">
+<h4>Printing to legacy vtk format<a class="headerlink" href="#printing-to-legacy-vtk-format" title="Link to this heading">#</a></h4>
+<p>Vtk is the visualization toolkit and is natively supported by paraview. The legacy writer is a simple one, <a class="reference external" href="https://docs.vtk.org/en/latest/design_documents/IOLegacyInformationFormat.html">https://docs.vtk.org/en/latest/design_documents/IOLegacyInformationFormat.html</a>, although it does not support compression. Here we will implement a class to print info into a series of files, one per a selected time step, to then load it into paraview.</p>
+<p>Note: There are much better, but also more complicated to write, data formats: binary compressed vtk (maybe you can use <a class="github reference external" href="https://github.com/polyfem/paraviewo">polyfem/paraviewo</a>), hdf5, hdmf, and so on.</p>
+<details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3">
+<summary class="sd-summary-title sd-card-header">
+<span class="sd-summary-text">vtk_exporter.h (please click)</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="cp">#ifndef VTK_EXPORTER_H</span>
+<span class="cp">#define VTK_EXPORTER_H</span>
+
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;string&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;vector&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;particle.h&quot;</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">VTKExporter</span><span class="w"> </span><span class="p">{</span>
+<span class="k">private</span><span class="o">:</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">output_dir</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">frame_counter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span>
+<span class="k">public</span><span class="o">:</span>
+<span class="w">    </span><span class="c1">// Constructor</span>
+<span class="w">    </span><span class="k">explicit</span><span class="w"> </span><span class="n">VTKExporter</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span><span class="w"> </span><span class="n">output_directory</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;output&quot;</span><span class="p">);</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="c1">// Export particle data to VTK legacy format</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">write_frame</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">Particle</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">bodies</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">time</span><span class="p">);</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="c1">// Reset counter</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">reset_counter</span><span class="p">();</span>
+<span class="p">};</span>
+
+<span class="cp">#endif</span>
+</pre></div>
+</div>
+</div>
+</details><div class="highlight-default notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+<details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3">
+<summary class="sd-summary-title sd-card-header">
+<span class="sd-summary-text">vtk_exporter.cpp (please click)</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;vtk_exporter.h&quot;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;fstream&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;iomanip&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;sstream&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cmath&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;filesystem&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;iostream&gt;</span>
+
+<span class="k">namespace</span><span class="w"> </span><span class="nn">fs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nn">std</span><span class="o">::</span><span class="nn">filesystem</span><span class="p">;</span>
+
+<span class="n">VTKExporter</span><span class="o">::</span><span class="n">VTKExporter</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span><span class="w"> </span><span class="n">output_directory</span><span class="p">)</span><span class="w"> </span>
+<span class="w">    </span><span class="o">:</span><span class="w"> </span><span class="n">output_dir</span><span class="p">(</span><span class="n">output_directory</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// Create output directory if it doesn&#39;t exist</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">fs</span><span class="o">::</span><span class="n">exists</span><span class="p">(</span><span class="n">output_dir</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">fs</span><span class="o">::</span><span class="n">create_directories</span><span class="p">(</span><span class="n">output_dir</span><span class="p">);</span>
+<span class="w">            </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Created output directory: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">output_dir</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">exception</span><span class="o">&amp;</span><span class="w"> </span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">std</span><span class="o">::</span><span class="n">cerr</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Warning: Could not create output directory: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">what</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="n">VTKExporter</span><span class="o">::</span><span class="n">write_frame</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">Particle</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">bodies</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">time</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// Generate filename</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">ostringstream</span><span class="w"> </span><span class="n">filename_stream</span><span class="p">;</span>
+<span class="w">    </span><span class="n">filename_stream</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">output_dir</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;/frame_&quot;</span><span class="w"> </span>
+<span class="w">                   </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">setfill</span><span class="p">(</span><span class="sc">&#39;0&#39;</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">setw</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">frame_counter</span><span class="w"> </span>
+<span class="w">                   </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;.vtk&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">filename_stream</span><span class="p">.</span><span class="n">str</span><span class="p">();</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">ofstream</span><span class="w"> </span><span class="nf">file</span><span class="p">(</span><span class="n">filename</span><span class="p">);</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">file</span><span class="p">.</span><span class="n">is_open</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">cerr</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Error: Could not open file for writing: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">filename</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+<span class="w">        </span><span class="k">return</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="c1">// VTK Legacy Format Header</span>
+<span class="w">    </span><span class="n">file</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;# vtk DataFile Version 2.0</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="n">file</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Particle simulation - Time: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">fixed</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">setprecision</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span><span class="w"> </span>
+<span class="w">         </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">time</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot; s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="n">file</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;ASCII</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="n">file</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;DATASET UNSTRUCTURED_GRID</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="c1">// Points (particle positions)</span>
+<span class="w">    </span><span class="n">file</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;POINTS &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bodies</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot; float</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="o">&amp;</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">bodies</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">file</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">scientific</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">setprecision</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>
+<span class="w">             </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">R</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot; &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">R</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot; &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">R</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="c1">// Cells (particles as vertices)</span>
+<span class="w">    </span><span class="n">file</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;CELLS &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bodies</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot; &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bodies</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">size_t</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">bodies</span><span class="p">.</span><span class="n">size</span><span class="p">();</span><span class="w"> </span><span class="o">++</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">file</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;1 &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="c1">// Cell types (1 = VTK_VERTEX)</span>
+<span class="w">    </span><span class="n">file</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;CELL_TYPES &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bodies</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">size_t</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">bodies</span><span class="p">.</span><span class="n">size</span><span class="p">();</span><span class="w"> </span><span class="o">++</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">file</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;1</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="c1">// Point data (velocities)</span>
+<span class="w">    </span><span class="n">file</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;POINT_DATA &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bodies</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="n">file</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;VECTORS velocity float</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="o">&amp;</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">bodies</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">file</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">scientific</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">setprecision</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>
+<span class="w">             </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">V</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot; &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">V</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot; &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">V</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="c1">// Scalar data (kinetic energy, speed)</span>
+<span class="w">    </span><span class="n">file</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;SCALARS kinetic_energy float 1</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="n">file</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;LOOKUP_TABLE default</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="o">&amp;</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">bodies</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kt">double</span><span class="w"> </span><span class="n">speed_sq</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">V</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">p</span><span class="p">.</span><span class="n">V</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">V</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">p</span><span class="p">.</span><span class="n">V</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">V</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">*</span><span class="n">p</span><span class="p">.</span><span class="n">V</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span>
+<span class="w">        </span><span class="kt">double</span><span class="w"> </span><span class="n">KE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.5</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">mass</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">speed_sq</span><span class="p">;</span>
+<span class="w">        </span><span class="n">file</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">scientific</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">setprecision</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">KE</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="c1">// Speed magnitude</span>
+<span class="w">    </span><span class="n">file</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;SCALARS speed float 1</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="n">file</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;LOOKUP_TABLE default</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="o">&amp;</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">bodies</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kt">double</span><span class="w"> </span><span class="n">speed_sq</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">V</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">p</span><span class="p">.</span><span class="n">V</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">V</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">p</span><span class="p">.</span><span class="n">V</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">V</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">*</span><span class="n">p</span><span class="p">.</span><span class="n">V</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span>
+<span class="w">        </span><span class="kt">double</span><span class="w"> </span><span class="n">speed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">sqrt</span><span class="p">(</span><span class="n">speed_sq</span><span class="p">);</span>
+<span class="w">        </span><span class="n">file</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">scientific</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">setprecision</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">speed</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">	</span><span class="c1">// Particle radius</span>
+<span class="w">	</span><span class="n">file</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;SCALARS radius float 1</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+<span class="w">	</span><span class="n">file</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;LOOKUP_TABLE default</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+<span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="o">&amp;</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">bodies</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="n">file</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">scientific</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">setprecision</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">rad</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+<span class="w">	</span><span class="p">}</span>
+
+<span class="w">	</span><span class="c1">// Particle mass (bonus)</span>
+<span class="w">	</span><span class="n">file</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;SCALARS mass float 1</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+<span class="w">	</span><span class="n">file</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;LOOKUP_TABLE default</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+<span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="o">&amp;</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">bodies</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="n">file</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">scientific</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">setprecision</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">mass</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+<span class="w">	</span><span class="p">}</span><span class="w">    </span>
+<span class="w">    </span>
+<span class="w">    </span><span class="n">file</span><span class="p">.</span><span class="n">close</span><span class="p">();</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Wrote VTK frame: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">filename</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot; (t = &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">time</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot; s)</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="n">frame_counter</span><span class="o">++</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="n">VTKExporter</span><span class="o">::</span><span class="n">reset_counter</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">frame_counter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</details></section>
+<section id="printing-to-a-csv-file-deprecated">
+<h4>Printing to a csv file (deprecated)<a class="headerlink" href="#printing-to-a-csv-file-deprecated" title="Link to this heading">#</a></h4>
 <p>To keep this simple, we will add a funtion to print the system data. The filename will be the timestep, padded to , let’s say, 8 spaces. And the content, with the for each particle per line, would be</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">rad</span><span class="p">,</span> <span class="n">mass</span><span class="p">,</span> <span class="n">vx</span><span class="p">,</span> <span class="n">vy</span><span class="p">,</span> <span class="n">vz</span><span class="p">,</span> <span class="n">fx</span><span class="p">,</span> <span class="n">fy</span><span class="p">,</span> <span class="n">fz</span>
 </pre></div>
 </div>
 <p>separated by <code class="docutils literal notranslate"><span class="pre">,</span></code> . Create the function and rerun the simulation.</p>
 <p><strong>NOTE</strong>: To avoid filling the hard disc and the folder with a lot of files, it is recommended to print the system info only every some steps, and in a separated folder. We will use a folder called <code class="docutils literal notranslate"><span class="pre">DISPLAY</span></code>. You can just create it in bash and assume its existence in the program, or use <code class="docutils literal notranslate"><span class="pre">#include</span> <span class="pre">&lt;filesystem&gt;</span></code>. and its utilities.</p>
-</section>
-<section id="loading-the-data-into-paraview">
-<h3>Loading the data into paraview<a class="headerlink" href="#loading-the-data-into-paraview" title="Link to this heading">#</a></h3>
-<p>Not that we have a lot of csv files inside the folder, let’s use paraview to open them. The path can change, but at the computer room you just run</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>/mnt/scratch/paraview/bin/paraview<span class="w"> </span><span class="p">&amp;</span>
-</pre></div>
-</div>
-<p>Then:</p>
-<ul class="simple">
-<li><p>Load the data, with <code class="docutils literal notranslate"><span class="pre">open</span></code> in the file many. Hit apply.</p></li>
-<li><p>Since this is a lot of csv files, we need to make them points with attributes. Go to filter and choose the filter <code class="docutils literal notranslate"><span class="pre">Table</span> <span class="pre">to</span> <span class="pre">Points</span></code>. Select the right settings and press apply.</p></li>
-<li><p>Now, add a glyph, of sphere type, and as scale use the fild representing the radius.
-Now you have your system visualized and if you press play, you can see your system in action!</p></li>
-</ul>
-<p>In paraview you can start applying filter, ike only printing particles with some specific speed, or adding some seed histogram in the right, or cut the filter in half and only plot the left part, and so on.</p>
 <p>We can also perform an intermidiate step and use a python script to read our csv data and transform it into a vtk binary file, using <code class="docutils literal notranslate"><span class="pre">pyevtk</span></code>, and the load it in paraview. En sample script would be</p>
+<details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3">
+<summary class="sd-summary-title sd-card-header">
+<span class="sd-summary-text">csv_to_binary_vtk.py (please click)</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pyevtk.hl</span><span class="w"> </span><span class="kn">import</span> <span class="n">points_to_vtk</span>
@@ -1020,121 +1346,141 @@ Now you have your system visualized and if you press play, you can see your syst
 <span class="n">csv_to_vtk</span><span class="p">(</span><span class="n">csv_file</span><span class="p">,</span> <span class="n">vtk_file</span><span class="p">)</span>
 </pre></div>
 </div>
+</div>
+</details><div class="highlight-default notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
 </section>
 </section>
-<section id="real-time-visualization-with-sfml">
-<h2>Real time visualization with SFML<a class="headerlink" href="#real-time-visualization-with-sfml" title="Link to this heading">#</a></h2>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// main_md.cpp</span>
-<span class="c1">// g++ -std=c++17 -g particle.cpp main_visual_md.cpp -lsfml-window -lsfml-graphics -lsfml-system</span>
+<section id="final-main-implementation-with-real-time-visualization-with-sfml">
+<h3>Final main implementation with real time visualization with SFML<a class="headerlink" href="#final-main-implementation-with-real-time-visualization-with-sfml" title="Link to this heading">#</a></h3>
+<p>Finally, we can adapt the main file to use both the realtime and the postprocessing printing files. Notice the compilation line, which should be adapted to your computer.</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// main_visual_md.cpp</span>
+<span class="c1">// SFML 3 compatible version with Visualizer and VTKExporter classes</span>
+<span class="c1">// g++ -std=c++23 -g -I /opt/homebrew/include/ -L /opt/homebrew/lib/ particle.cpp main_visual_md.cpp visualizer.cpp vtk_exporter.cpp -lsfml-window -lsfml-graphics -lsfml-system</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;particle.h&quot;</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;integrator.h&quot;</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;collider.h&quot;</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;boundary.h&quot;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;visualizer.h&quot;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;vtk_exporter.h&quot;</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;vector&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;map&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;string&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;iostream&gt;</span>
 
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;SFML/Graphics.hpp&gt;</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">initial_conditions</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">Particle</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">particles</span><span class="p">);</span>
 
-<span class="kt">void</span><span class="w"> </span><span class="nf">initial_conditions</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">Particle</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">particles</span><span class="p">);</span>
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="o">**</span><span class="w"> </span><span class="n">argv</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">Particle</span><span class="o">&gt;</span><span class="w"> </span><span class="n">bodies</span><span class="p">;</span>
+<span class="w">    </span><span class="n">bodies</span><span class="p">.</span><span class="n">resize</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span><span class="w"> </span><span class="c1">// only one particle for now</span>
 
-<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">**</span><span class="n">argv</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">Particle</span><span class="o">&gt;</span><span class="w"> </span><span class="n">bodies</span><span class="p">;</span>
-<span class="w">  </span><span class="n">bodies</span><span class="p">.</span><span class="n">resize</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span><span class="w"> </span><span class="c1">// only one particle for now</span>
+<span class="w">    </span><span class="c1">// Physics parameters</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">map</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="o">&gt;</span><span class="w"> </span><span class="n">p</span><span class="p">;</span>
+<span class="w">    </span><span class="n">p</span><span class="p">[</span><span class="s">&quot;T0&quot;</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="p">;</span>
+<span class="w">    </span><span class="n">p</span><span class="p">[</span><span class="s">&quot;TF&quot;</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">100.8767</span><span class="p">;</span>
+<span class="w">    </span><span class="n">p</span><span class="p">[</span><span class="s">&quot;DT&quot;</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.01</span><span class="p">;</span>
+<span class="w">    </span><span class="n">p</span><span class="p">[</span><span class="s">&quot;G&quot;</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="p">;</span><span class="w"> </span><span class="c1">//-9.81;</span>
 
-<span class="w">  </span><span class="c1">// parameters</span>
-<span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">map</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="o">&gt;</span><span class="w"> </span><span class="n">p</span><span class="p">;</span>
-<span class="w">  </span><span class="n">p</span><span class="p">[</span><span class="s">&quot;T0&quot;</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="p">;</span>
-<span class="w">  </span><span class="n">p</span><span class="p">[</span><span class="s">&quot;TF&quot;</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">100.8767</span><span class="p">;</span>
-<span class="w">  </span><span class="n">p</span><span class="p">[</span><span class="s">&quot;DT&quot;</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.01</span><span class="p">;</span>
-<span class="w">  </span><span class="n">p</span><span class="p">[</span><span class="s">&quot;G&quot;</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="p">;</span><span class="w"> </span><span class="c1">//-9.81;</span>
+<span class="w">	</span><span class="n">p</span><span class="p">[</span><span class="s">&quot;RMAX&quot;</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">2.345</span><span class="p">;</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="c1">// Force collider</span>
+<span class="w">    </span><span class="n">Collider</span><span class="w"> </span><span class="n">collider</span><span class="p">(</span><span class="n">p</span><span class="p">);</span>
 
-<span class="w">  </span><span class="c1">// window</span>
-<span class="w">  </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">WIDTH</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">800</span><span class="p">,</span><span class="w"> </span><span class="n">HEIGHT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">600</span><span class="p">;</span>
-<span class="w">  </span><span class="k">const</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="n">METERS_TO_PIXELS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">100.0f</span><span class="p">;</span><span class="w"> </span><span class="c1">// 200 pixels per meter</span>
-<span class="w">  </span>
-<span class="w">  </span><span class="c1">// Force collider</span>
-<span class="w">  </span><span class="n">Collider</span><span class="w"> </span><span class="n">collider</span><span class="p">(</span><span class="n">p</span><span class="p">);</span>
+<span class="w">    </span><span class="c1">// Time initialization</span>
+<span class="w">    </span><span class="n">TimeIntegrator</span><span class="w"> </span><span class="n">integrator</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="s">&quot;DT&quot;</span><span class="p">]);</span>
 
-<span class="w">  </span><span class="c1">// Time initialization</span>
-<span class="w">  </span><span class="n">TimeIntegrator</span><span class="w"> </span><span class="n">integrator</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="s">&quot;DT&quot;</span><span class="p">]);</span>
+<span class="w">    </span><span class="c1">// Boundary conditions</span>
+<span class="w">    </span><span class="n">Boundary</span><span class="w"> </span><span class="n">bc</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="s">&quot;RMAX&quot;</span><span class="p">],</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="mf">1.0</span><span class="p">);</span><span class="w"> </span><span class="c1">// RMAX, CX, CY, CZ, EN</span>
 
-<span class="w">  </span><span class="c1">// Boundary conditions</span>
-<span class="w">  </span><span class="n">Boundary</span><span class="w"> </span><span class="n">bc</span><span class="p">(</span><span class="mf">2.345</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="mf">1.0</span><span class="p">);</span><span class="w"> </span><span class="c1">// RMAX, CX, CY, CZ, EN</span>
+<span class="w">    </span><span class="c1">// Initial conditions and properties</span>
+<span class="w">    </span><span class="n">initial_conditions</span><span class="p">(</span><span class="n">bodies</span><span class="p">);</span>
+<span class="w">    </span><span class="n">collider</span><span class="p">.</span><span class="n">computeForces</span><span class="p">(</span><span class="n">bodies</span><span class="p">);</span><span class="w"> </span><span class="c1">// force at t = 0</span>
+<span class="w">    </span><span class="n">integrator</span><span class="p">.</span><span class="n">startIntegration</span><span class="p">(</span><span class="n">bodies</span><span class="p">);</span><span class="w"> </span><span class="c1">// start integration algorithm</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;=== Simulation Start ===</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">p</span><span class="p">[</span><span class="s">&quot;T0&quot;</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\t</span><span class="s">&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="n">bodies</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">print</span><span class="p">();</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
 
-<span class="w">  </span><span class="c1">// initial conditions and properties</span>
-<span class="w">  </span><span class="n">initial_conditions</span><span class="p">(</span><span class="n">bodies</span><span class="p">);</span>
-<span class="w">  </span><span class="n">collider</span><span class="p">.</span><span class="n">computeForces</span><span class="p">(</span><span class="n">bodies</span><span class="p">);</span><span class="w"> </span><span class="c1">// force at t = 0</span>
-<span class="w">  </span><span class="n">integrator</span><span class="p">.</span><span class="n">startIntegration</span><span class="p">(</span><span class="n">bodies</span><span class="p">);</span><span class="w"> </span><span class="c1">// start integration algorithm</span>
-<span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">p</span><span class="p">[</span><span class="s">&quot;T0&quot;</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\t</span><span class="s">&quot;</span><span class="p">;</span>
-<span class="w">  </span><span class="n">bodies</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">print</span><span class="p">();</span>
-<span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="c1">// --- VISUALIZATION &amp; I/O SETUP ---</span>
+<span class="w">    </span><span class="c1">// Create visualizer</span>
+<span class="w">    </span><span class="n">Visualizer</span><span class="w"> </span><span class="n">visualizer</span><span class="p">(</span><span class="mi">800</span><span class="p">,</span><span class="w"> </span><span class="mi">600</span><span class="p">,</span><span class="w"> </span><span class="mf">100.0f</span><span class="p">);</span><span class="w">  </span><span class="c1">// width, height, scale</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="c1">// Initialize visualizer with particles and boundary</span>
+<span class="w">    </span><span class="n">visualizer</span><span class="p">.</span><span class="n">initialize</span><span class="p">(</span><span class="n">bodies</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">[</span><span class="s">&quot;RMAX&quot;</span><span class="p">],</span><span class="w"> </span><span class="mf">0.0f</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0f</span><span class="p">);</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="c1">// Create VTK exporter</span>
+<span class="w">    </span><span class="n">VTKExporter</span><span class="w"> </span><span class="n">vtk_exporter</span><span class="p">(</span><span class="s">&quot;output&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="n">vtk_exporter</span><span class="p">.</span><span class="n">reset_counter</span><span class="p">();</span>
 
-<span class="w">  </span><span class="c1">// --- VISUALIZATION SETUP ---</span>
-<span class="w">  </span><span class="n">sf</span><span class="o">::</span><span class="n">RenderWindow</span><span class="w"> </span><span class="n">window</span><span class="p">(</span><span class="n">sf</span><span class="o">::</span><span class="n">VideoMode</span><span class="p">(</span><span class="n">WIDTH</span><span class="p">,</span><span class="w"> </span><span class="n">HEIGHT</span><span class="p">),</span><span class="w"> </span><span class="s">&quot;C++ Simulation &amp; Visualization&quot;</span><span class="p">);</span>
-<span class="w">  </span><span class="n">window</span><span class="p">.</span><span class="n">setFramerateLimit</span><span class="p">(</span><span class="mi">120</span><span class="p">);</span>
-<span class="w">  </span><span class="n">sf</span><span class="o">::</span><span class="n">CircleShape</span><span class="w"> </span><span class="n">particle_shape</span><span class="p">(</span><span class="n">bodies</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">rad</span><span class="p">);</span>
-<span class="w">  </span><span class="n">particle_shape</span><span class="p">.</span><span class="n">setFillColor</span><span class="p">(</span><span class="n">sf</span><span class="o">::</span><span class="n">Color</span><span class="o">::</span><span class="n">Cyan</span><span class="p">);</span>
-<span class="w">  </span><span class="n">particle_shape</span><span class="p">.</span><span class="n">setOrigin</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+<span class="w">    </span><span class="c1">// Time iteration</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">niter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">int</span><span class="p">((</span><span class="n">p</span><span class="p">[</span><span class="s">&quot;TF&quot;</span><span class="p">]</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">p</span><span class="p">[</span><span class="s">&quot;T0&quot;</span><span class="p">])</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">p</span><span class="p">[</span><span class="s">&quot;DT&quot;</span><span class="p">]);</span>
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">p</span><span class="p">[</span><span class="s">&quot;T0&quot;</span><span class="p">];</span>
 
-<span class="w">  </span><span class="c1">// Time iteration</span>
-<span class="w">  </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">niter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">int</span><span class="p">((</span><span class="n">p</span><span class="p">[</span><span class="s">&quot;TF&quot;</span><span class="p">]</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">p</span><span class="p">[</span><span class="s">&quot;T0&quot;</span><span class="p">])</span><span class="o">/</span><span class="n">p</span><span class="p">[</span><span class="s">&quot;DT&quot;</span><span class="p">]);</span>
-<span class="w">  </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">ii</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">ii</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">niter</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">window</span><span class="p">.</span><span class="n">isOpen</span><span class="p">();</span><span class="w"> </span><span class="o">++</span><span class="n">ii</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="c1">// check close event</span>
-<span class="w">    </span><span class="n">sf</span><span class="o">::</span><span class="n">Event</span><span class="w"> </span><span class="n">event</span><span class="p">;</span>
-<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">window</span><span class="p">.</span><span class="n">pollEvent</span><span class="p">(</span><span class="n">event</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">event</span><span class="p">.</span><span class="n">type</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">sf</span><span class="o">::</span><span class="n">Event</span><span class="o">::</span><span class="n">Closed</span><span class="p">)</span><span class="w"> </span><span class="n">window</span><span class="p">.</span><span class="n">close</span><span class="p">();</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">ii</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">ii</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">niter</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">ii</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// Physics simulation</span>
+<span class="w">        </span><span class="n">collider</span><span class="p">.</span><span class="n">computeForces</span><span class="p">(</span><span class="n">bodies</span><span class="p">);</span>
+<span class="w">        </span><span class="n">integrator</span><span class="p">.</span><span class="n">timeStep</span><span class="p">(</span><span class="n">bodies</span><span class="p">);</span>
+<span class="w">        </span><span class="n">bc</span><span class="p">.</span><span class="n">apply</span><span class="p">(</span><span class="n">bodies</span><span class="p">);</span>
+<span class="w">        </span><span class="n">time</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">p</span><span class="p">[</span><span class="s">&quot;DT&quot;</span><span class="p">];</span>
+
+<span class="w">        </span><span class="c1">// Render (handles window events internally)</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">visualizer</span><span class="p">.</span><span class="n">update_and_render</span><span class="p">(</span><span class="n">bodies</span><span class="p">,</span><span class="w"> </span><span class="n">time</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">[</span><span class="s">&quot;DT&quot;</span><span class="p">]))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">break</span><span class="p">;</span><span class="w">  </span><span class="c1">// Window closed</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="c1">// Export to VTK every 100 frames</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">ii</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">100</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">vtk_exporter</span><span class="p">.</span><span class="n">write_frame</span><span class="p">(</span><span class="n">bodies</span><span class="p">,</span><span class="w"> </span><span class="n">time</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="c1">// Optional: Print to stdout every 1000 frames</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">ii</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">1000</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">time</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\t</span><span class="s">&quot;</span><span class="p">;</span>
+<span class="w">            </span><span class="n">bodies</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">print</span><span class="p">();</span>
+<span class="w">            </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
 <span class="w">    </span><span class="p">}</span>
-<span class="w">    </span><span class="c1">// md simul</span>
-<span class="w">    </span><span class="n">collider</span><span class="p">.</span><span class="n">computeForces</span><span class="p">(</span><span class="n">bodies</span><span class="p">);</span>
-<span class="w">    </span><span class="n">integrator</span><span class="p">.</span><span class="n">timeStep</span><span class="p">(</span><span class="n">bodies</span><span class="p">);</span>
-<span class="w">    </span><span class="n">bc</span><span class="p">.</span><span class="n">apply</span><span class="p">(</span><span class="n">bodies</span><span class="p">);</span>
 
-<span class="w">    </span><span class="c1">// 2. Run the C++ visualization</span>
-<span class="w">    </span><span class="n">window</span><span class="p">.</span><span class="n">clear</span><span class="p">(</span><span class="n">sf</span><span class="o">::</span><span class="n">Color</span><span class="o">::</span><span class="n">Black</span><span class="p">);</span>
-<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="o">&amp;</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">bodies</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="kt">float</span><span class="w"> </span><span class="n">pixel_radius</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">rad</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">METERS_TO_PIXELS</span><span class="p">;</span>
-<span class="w">      </span><span class="c1">// Set the radius for this specific particle, scaled to pixels</span>
-<span class="w">      </span><span class="n">particle_shape</span><span class="p">.</span><span class="n">setRadius</span><span class="p">(</span><span class="n">pixel_radius</span><span class="p">);</span>
-<span class="w">      </span><span class="c1">// Center the origin so setPosition() refers to the center of the circle</span>
-<span class="w">      </span><span class="n">particle_shape</span><span class="p">.</span><span class="n">setOrigin</span><span class="p">(</span><span class="n">pixel_radius</span><span class="p">,</span><span class="w"> </span><span class="n">pixel_radius</span><span class="p">);</span>
-
-<span class="w">      </span><span class="c1">// Convert world coordinates to screen coordinates</span>
-<span class="w">      </span><span class="n">sf</span><span class="o">::</span><span class="n">Vector2f</span><span class="w"> </span><span class="n">screen_pos</span><span class="p">;</span>
-<span class="w">      </span><span class="n">screen_pos</span><span class="p">.</span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">WIDTH</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mf">2.0f</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">(</span><span class="n">p</span><span class="p">.</span><span class="n">R</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">METERS_TO_PIXELS</span><span class="p">);</span>
-<span class="w">      </span><span class="c1">// Flip the Y-axis: (HEIGHT - world_y_in_pixels)</span>
-<span class="w">      </span><span class="n">screen_pos</span><span class="p">.</span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">HEIGHT</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mf">2.0f</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="p">(</span><span class="n">p</span><span class="p">.</span><span class="n">R</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">METERS_TO_PIXELS</span><span class="p">);</span>
-<span class="w">      </span>
-<span class="w">      </span><span class="n">particle_shape</span><span class="p">.</span><span class="n">setPosition</span><span class="p">(</span><span class="n">screen_pos</span><span class="p">);</span>
-<span class="w">      </span><span class="n">window</span><span class="p">.</span><span class="n">draw</span><span class="p">(</span><span class="n">particle_shape</span><span class="p">);</span>
-<span class="w">    </span><span class="p">}</span>
-<span class="w">    </span><span class="n">window</span><span class="p">.</span><span class="n">display</span><span class="p">();</span>
-
-<span class="w">    </span><span class="c1">// // print local info</span>
-<span class="w">    </span><span class="c1">// double time = p[&quot;T0&quot;] + ii*p[&quot;DT&quot;];</span>
-<span class="w">    </span><span class="c1">// std::cout &lt;&lt; time &lt;&lt; &quot;\t&quot;;</span>
-<span class="w">    </span><span class="c1">// bodies[0].print();</span>
-<span class="w">    </span><span class="c1">// std::cout &lt;&lt; &quot;\n&quot;;</span>
-<span class="w">  </span><span class="p">}</span>
-
-<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;=== Simulation Complete ===</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Final time: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">time</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot; s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;VTK files saved to output/ directory</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
 <span class="p">}</span>
 
-<span class="kt">void</span><span class="w"> </span><span class="nf">initial_conditions</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">Particle</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">particles</span><span class="p">)</span>
-<span class="p">{</span>
-<span class="w">  </span><span class="n">particles</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">R</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.987</span><span class="p">;</span><span class="w">  </span><span class="c1">// z is upwards, x to the right</span>
-<span class="w">  </span><span class="n">particles</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">V</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">4.9876</span><span class="p">;</span><span class="c1">//12.987; // z is upwards, x to the right</span>
-<span class="w">  </span><span class="n">particles</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">V</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="p">;</span><span class="w"> </span><span class="c1">//4.9876; //3.987; // z is upwards, x to the right</span>
-<span class="w">  </span><span class="n">particles</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">rad</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="mf">0.103</span><span class="p">;</span>
-<span class="w">  </span><span class="n">particles</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">mass</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.337</span><span class="p">;</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">initial_conditions</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">Particle</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">particles</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">particles</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">R</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.987</span><span class="p">;</span><span class="w">    </span><span class="c1">// z is upwards, x to the right</span>
+<span class="w">    </span><span class="n">particles</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">V</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">4.9876</span><span class="p">;</span><span class="w">   </span><span class="c1">// initial velocity in x</span>
+<span class="w">    </span><span class="n">particles</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">V</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="p">;</span><span class="w">      </span><span class="c1">// initial velocity in z</span>
+<span class="w">    </span><span class="n">particles</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">rad</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.103</span><span class="p">;</span><span class="w">     </span><span class="c1">// particle radius</span>
+<span class="w">    </span><span class="n">particles</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">mass</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.337</span><span class="p">;</span><span class="w">    </span><span class="c1">// particle mass</span>
 <span class="p">}</span>
 </pre></div>
 </div>
 <p>You will get a real time animation with frames like</p>
-<div style="text-align: center;">
-<figure>
-<img src="fig/sfml.png" width=30%>
-<figcaption> sfml visualization </figcaption>
+<figure class="align-center">
+<a class="bg-primary reference internal image-reference" href="../../_images/sfml.gif"><img alt="" class="bg-primary" src="../../_images/sfml.gif" style="width: 90%;" />
+</a>
 </figure>
+<p>Also, the output directory will have all the egacy vtk files to be visualized in paraview.</p>
+</section>
+<section id="loading-the-data-into-paraview">
+<h3>Loading the data into paraview<a class="headerlink" href="#loading-the-data-into-paraview" title="Link to this heading">#</a></h3>
+<p>In both cases, either vtk or csv series of files, we will need to load the files into paraview. The exact paraview command location depends on the machine, but, at the computer room you just run</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>/mnt/scratch/paraview/bin/paraview<span class="w"> </span><span class="p">&amp;</span>
+</pre></div>
 </div>
+<p>Then:</p>
+<ul class="simple">
+<li><p>Load the data: Browse to the files directory and select the series, which should be shown in a compacted way. Hit apply.</p></li>
+<li><p>ONLY If you are using the csv files, you need to make them points with attributes. Go to filter and choose the filter <code class="docutils literal notranslate"><span class="pre">Table</span> <span class="pre">to</span> <span class="pre">Points</span></code>. Select the right settings and press apply.</p></li>
+<li><p>Now, add a glyph, of sphere type, and as scale use the field representing the radius.</p></li>
+</ul>
+<p>Now you have your system visualized and if you press play, you can see your system in action!</p>
+<p>In paraview you can also perform analysis. For example, you can  apply a filter, like only printing particles with some specific speed, or adding some seed histogram in the right, or cut the filter in half and only plot the left part, and so on.</p>
+</section>
 </section>
 </section>
 
@@ -1216,12 +1562,17 @@ Now you have your system visualized and if you press play, you can see your syst
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#adding-left-and-right-walls">Adding left and right walls</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-better-visualization-and-analysis-using-paraview"><strong>A better visualization and analysis: using Paraview</strong></a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#printing-the-data-in-a-suitable-format">Printing the data in a suitable format</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#better-visualization-real-time-postprocessing-analysis">Better visualization real time, postprocessing, analysis</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sfml-v3-realtime-visualization">SFML v3: Realtime visualization</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#paraview-postprocessing">Paraview: Postprocessing</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#printing-to-legacy-vtk-format">Printing to legacy vtk format</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#printing-to-a-csv-file-deprecated">Printing to a csv file (deprecated)</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#final-main-implementation-with-real-time-visualization-with-sfml">Final main implementation with real time visualization with SFML</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#loading-the-data-into-paraview">Loading the data into paraview</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#real-time-visualization-with-sfml">Real time visualization with SFML</a></li>
 </ul>
   </nav></div>
 
