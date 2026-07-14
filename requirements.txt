@@ -1,5 +1,5 @@
 #jupyter-book==0.15.1
-jupyter-book==1.0.3
+jupyter-book==1.0.4
 notebook
 jupyterlab
 matplotlib
@@ -32,3 +32,6 @@ sphinx-inline_tabs
 sphinx_proof
 sphinx_examples
 sphinx_hoverxref
+sphinx-inline-tabs
+
+jupyterlab-rise

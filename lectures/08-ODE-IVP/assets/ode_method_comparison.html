@@ -1,0 +1,295 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.wrap{padding:1rem 0;font-family:sans-serif}
+.tabs{display:flex;gap:6px;margin-bottom:1rem;flex-wrap:wrap}
+button{padding:6px 14px;font-size:13px;border:1px solid #ccc;border-radius:6px;background:#fff;color:#555;cursor:pointer}
+button.active{background:#f0f0f0;color:#111;border-color:#999}
+.grid4{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1rem}
+.ctrl{display:flex;flex-direction:column;gap:3px;font-size:12px;color:#777}
+.ctrl-r{display:flex;align-items:center;gap:8px}
+.ctrl-r input{flex:1}
+.ctrl-r b{min-width:44px;font-size:13px;color:#222;font-weight:600;text-align:right}
+canvas{width:100%;border:1px solid #ddd;border-radius:6px;display:block;background:#fff}
+.leg{display:flex;flex-wrap:wrap;gap:16px;font-size:12px;color:#555;margin-top:8px}
+.leg span{display:flex;align-items:center;gap:5px}
+.errs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:10px;font-size:12px}
+.ec{background:#f8f8f8;border:1px solid #eee;border-radius:6px;padding:7px;text-align:center}
+.ec .el{color:#888;margin-bottom:3px}
+.ec .ev{font-weight:600;font-size:14px}
+.note{font-size:11px;color:#999;margin-top:8px;line-height:1.5}
+</style>
+<div class="wrap">
+  <div class="tabs">
+    <button class="active" onclick="setTab('harmonic',this)">x(t)</button>
+    <button onclick="setTab('phase',this)">Phase portrait</button>
+  </div>
+  <div class="grid4">
+    <div class="ctrl">
+      <span>ω — natural frequency</span>
+      <div class="ctrl-r"><input type="range" id="sl_w" min="0.3" max="3" step="0.1" value="1" oninput="draw()"><b id="wval">1.0</b></div>
+    </div>
+    <div class="ctrl">
+      <span>γ — damping coefficient</span>
+      <div class="ctrl-r"><input type="range" id="sl_g" min="0" max="1.5" step="0.05" value="0" oninput="draw()"><b id="gval">0.00</b></div>
+    </div>
+    <div class="ctrl">
+      <span>F — forcing amplitude</span>
+      <div class="ctrl-r"><input type="range" id="sl_f" min="0" max="2" step="0.05" value="0" oninput="draw()"><b id="fval">0.00</b></div>
+    </div>
+    <div class="ctrl">
+      <span>Ω — forcing frequency</span>
+      <div class="ctrl-r"><input type="range" id="sl_o" min="0.3" max="3" step="0.1" value="1" oninput="draw()"><b id="oval">1.0</b></div>
+    </div>
+    <div class="ctrl">
+      <span>Step size h</span>
+      <div class="ctrl-r"><input type="range" id="sl_h" min="0.01" max="0.5" step="0.01" value="0.2" oninput="draw()"><b id="hval">0.20</b></div>
+    </div>
+    <div class="ctrl">
+      <span>Time span T</span>
+      <div class="ctrl-r"><input type="range" id="sl_t" min="5" max="80" step="5" value="20" oninput="draw()"><b id="tval">20</b></div>
+    </div>
+  </div>
+  <canvas id="cv" height="300"></canvas>
+  <div class="leg">
+    <span><svg width="28" height="10"><line x1="0" y1="5" x2="28" y2="5" stroke="#111" stroke-width="2.5" stroke-dasharray="7,3"/></svg>Exact / RK4-ref</span>
+    <span><svg width="28" height="10"><line x1="0" y1="5" x2="28" y2="5" stroke="#e05" stroke-width="2"/></svg>Euler</span>
+    <span><svg width="28" height="10"><line x1="0" y1="5" x2="28" y2="5" stroke="#27e" stroke-width="2"/></svg>Heun</span>
+    <span><svg width="28" height="10"><line x1="0" y1="5" x2="28" y2="5" stroke="#1a3" stroke-width="2"/></svg>RK4</span>
+  </div>
+  <div class="errs">
+    <div class="ec"><div class="el">regime</div><div class="ev" id="regime" style="color:#555">—</div></div>
+    <div class="ec"><div class="el">Euler err</div><div class="ev" id="ee" style="color:#e05">—</div></div>
+    <div class="ec"><div class="el">Heun err</div><div class="ev" id="he" style="color:#27e">—</div></div>
+    <div class="ec"><div class="el">RK4 err</div><div class="ev" id="re" style="color:#1a3">—</div></div>
+  </div>
+  <div class="note" id="note">Undamped, unforced: exact solution is x(t) = cos(ωt). The dashed black line is independent of h.</div>
+</div>
+<script>
+let tab = 'harmonic';
+
+function setTab(t, btn) {
+  tab = t;
+  document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  draw();
+}
+
+function getParams() {
+  return {
+    w: +document.getElementById('sl_w').value,
+    g: +document.getElementById('sl_g').value,
+    F: +document.getElementById('sl_f').value,
+    O: +document.getElementById('sl_o').value,
+    h: +document.getElementById('sl_h').value,
+    tf: +document.getElementById('sl_t').value,
+  };
+}
+
+function updateLabels(p) {
+  document.getElementById('wval').textContent = p.w.toFixed(1);
+  document.getElementById('gval').textContent = p.g.toFixed(2);
+  document.getElementById('fval').textContent = p.F.toFixed(2);
+  document.getElementById('oval').textContent = p.O.toFixed(1);
+  document.getElementById('hval').textContent = p.h.toFixed(2);
+  document.getElementById('tval').textContent = p.tf.toFixed(0);
+}
+
+function makeODE(w, g, F, O) {
+  return (t, y) => [
+    y[1],
+    -w*w*y[0] - g*y[1] + F*Math.cos(O*t)
+  ];
+}
+
+function exactSolution(w, g, F, O, tf) {
+  const N = 800;
+  const pts = [];
+  if (g === 0 && F === 0) {
+    for (let i = 0; i <= N; i++) {
+      const t = i * tf / N;
+      pts.push([t, Math.cos(w * t), -w * Math.sin(w * t)]);
+    }
+  } else if (g > 0 && F === 0 && g < 2*w) {
+    const wd = Math.sqrt(Math.max(0, w*w - g*g/4));
+    for (let i = 0; i <= N; i++) {
+      const t = i * tf / N;
+      const x = Math.exp(-g*t/2) * Math.cos(wd * t);
+      const v = Math.exp(-g*t/2) * (-g/2 * Math.cos(wd*t) - wd * Math.sin(wd*t));
+      pts.push([t, x, v]);
+    }
+  } else {
+    pts.push(null);
+  }
+  return pts;
+}
+
+function solve(method, f, tf, h) {
+  const y0 = [1, 0];
+  const pts = [[0, ...y0]];
+  let y = [...y0], t = 0;
+  const step = Math.min(h, tf);
+  while (t < tf - 1e-12) {
+    const dt = Math.min(step, tf - t);
+    if (method === 'euler') {
+      const d = f(t, y);
+      y = y.map((v, i) => v + dt * d[i]);
+    } else if (method === 'heun') {
+      const k1 = f(t, y);
+      const yp = y.map((v, i) => v + dt * k1[i]);
+      const k2 = f(t + dt, yp);
+      y = y.map((v, i) => v + dt * (k1[i] + k2[i]) / 2);
+    } else {
+      const k1 = f(t, y);
+      const k2 = f(t+dt/2, y.map((v,i)=>v+dt*k1[i]/2));
+      const k3 = f(t+dt/2, y.map((v,i)=>v+dt*k2[i]/2));
+      const k4 = f(t+dt,   y.map((v,i)=>v+dt*k3[i]));
+      y = y.map((v,i) => v + dt*(k1[i]+2*k2[i]+2*k3[i]+k4[i])/6);
+    }
+    t += dt;
+    pts.push([t, ...y]);
+  }
+  return pts;
+}
+
+function refSolution(f, tf) {
+  return solve('rk4', f, tf, 0.005);
+}
+
+function maxErr(pts, ref) {
+  let err = 0;
+  for (const p of pts) {
+    const t = p[0];
+    const idx = Math.round(t / (ref[ref.length-1][0]) * (ref.length-1));
+    const r = ref[Math.min(idx, ref.length-1)];
+    const e = Math.abs(p[1] - r[1]);
+    if (isFinite(e)) err = Math.max(err, e);
+  }
+  return err;
+}
+
+function fmt(e) {
+  if (!isFinite(e) || e > 9999) return '∞';
+  if (e < 0.001) return e.toExponential(1);
+  return e.toFixed(3);
+}
+
+function draw() {
+  const p = getParams();
+  updateLabels(p);
+
+  const f = makeODE(p.w, p.g, p.F, p.O);
+  const pe = solve('euler', f, p.tf, p.h);
+  const ph = solve('heun',  f, p.tf, p.h);
+  const pr = solve('rk4',   f, p.tf, p.h);
+
+  const exactPts = exactSolution(p.w, p.g, p.F, p.O, p.tf);
+  const hasExact = exactPts[0] !== null;
+  const ref = hasExact ? exactPts : refSolution(f, p.tf);
+
+  const isResonance = p.F > 0 && Math.abs(p.O - p.w) < 0.15 && p.g < 0.1;
+  const regime = p.g === 0 && p.F === 0 ? 'undamped' :
+                 p.g > 0  && p.F === 0 ? (p.g < 2*p.w ? 'underdamped' : 'overdamped') :
+                 isResonance ? 'resonance!' : 'forced';
+  document.getElementById('regime').textContent = regime;
+
+  const noteEl = document.getElementById('note');
+  if (hasExact) {
+    noteEl.textContent = p.g===0&&p.F===0
+      ? 'Undamped, unforced: exact = cos(ωt). Dashed line is independent of h.'
+      : 'Underdamped, unforced: exact = e^(−γt/2)·cos(ω_d·t). Dashed line is independent of h.';
+  } else {
+    noteEl.textContent = 'No closed-form exact solution for this regime — dashed line is a fine RK4 reference (h=0.005), independent of the h slider.';
+  }
+
+  const cv = document.getElementById('cv');
+  const DPR = window.devicePixelRatio || 1;
+  const W = cv.offsetWidth || 620, H = 300;
+  cv.width = W*DPR; cv.height = H*DPR;
+  cv.style.width = W+'px'; cv.style.height = H+'px';
+  const ctx = cv.getContext('2d');
+  ctx.scale(DPR, DPR);
+  ctx.fillStyle = '#fff'; ctx.fillRect(0,0,W,H);
+
+  const PAD = {l:48, r:14, t:16, b:30};
+  const PW = W-PAD.l-PAD.r, PH = H-PAD.t-PAD.b;
+
+  if (tab === 'harmonic') {
+    const refY = ref.map(q=>q[1]).filter(v=>isFinite(v)&&Math.abs(v)<200);
+    const ymin = Math.min(...refY) - 0.15;
+    const ymax = Math.max(...refY) + 0.15;
+    const sx = t => PAD.l + (t/p.tf)*PW;
+    const sy = v => PAD.t + (1-(v-ymin)/(ymax-ymin))*PH;
+
+    ctx.strokeStyle='#eee'; ctx.lineWidth=0.8;
+    for(let i=0;i<=4;i++){const yv=ymin+i*(ymax-ymin)/4; ctx.beginPath();ctx.moveTo(PAD.l,sy(yv));ctx.lineTo(PAD.l+PW,sy(yv));ctx.stroke();}
+    ctx.fillStyle='#aaa'; ctx.font='10px sans-serif'; ctx.textAlign='right';
+    for(let i=0;i<=4;i++){const yv=ymin+i*(ymax-ymin)/4; ctx.fillText(yv.toFixed(1),PAD.l-4,sy(yv)+3);}
+    ctx.textAlign='center';
+    for(let i=0;i<=5;i++){const t=i*p.tf/5; ctx.fillStyle='#aaa';ctx.fillText(t.toFixed(0),sx(t),H-PAD.b+13);}
+    ctx.strokeStyle='#ccc'; ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(PAD.l,PAD.t);ctx.lineTo(PAD.l,H-PAD.b);ctx.lineTo(W-PAD.r,H-PAD.b);ctx.stroke();
+
+    function line(pts, col, dashed, lw) {
+      ctx.save(); ctx.beginPath(); ctx.rect(PAD.l,PAD.t,PW,PH); ctx.clip();
+      ctx.strokeStyle=col; ctx.lineWidth=lw||1.8; ctx.setLineDash(dashed?[7,4]:[]);
+      ctx.beginPath(); let first=true;
+      for(const pt of pts){
+        const x=sx(pt[0]), y=sy(pt[1]);
+        if(!isFinite(y)||pt[1]<ymin-5||pt[1]>ymax+5){first=true;continue;}
+        first?ctx.moveTo(x,y):ctx.lineTo(x,y); first=false;
+      }
+      ctx.stroke(); ctx.setLineDash([]); ctx.restore();
+    }
+
+    line(pe, '#e05', false);
+    line(ph, '#27e', false);
+    line(pr, '#1a3', false);
+    line(ref, '#111', true, 2.5);
+
+    document.getElementById('ee').textContent = fmt(maxErr(pe, ref));
+    document.getElementById('he').textContent = fmt(maxErr(ph, ref));
+    document.getElementById('re').textContent = fmt(maxErr(pr, ref));
+
+  } else {
+    const refX = ref.map(q=>q[1]).filter(v=>isFinite(v)&&Math.abs(v)<200);
+    const refV = ref.map(q=>q[2]??0).filter(v=>isFinite(v)&&Math.abs(v)<200);
+    const rng = Math.max(...refX.map(Math.abs),...refV.map(Math.abs),0.5)*1.15;
+    const sx = x => PAD.l + (x+rng)/(2*rng)*PW;
+    const sy = v => PAD.t + (1-(v+rng)/(2*rng))*PH;
+
+    ctx.strokeStyle='#eee'; ctx.lineWidth=0.8;
+    ctx.beginPath();ctx.moveTo(sx(0),PAD.t);ctx.lineTo(sx(0),H-PAD.b);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(PAD.l,sy(0));ctx.lineTo(W-PAD.r,sy(0));ctx.stroke();
+    ctx.fillStyle='#aaa'; ctx.font='10px sans-serif'; ctx.textAlign='center';
+    ctx.fillText('x →', W-PAD.r+2, sy(0)+4);
+    ctx.save();ctx.translate(sx(0)-4,PAD.t+8);ctx.fillText('v',0,0);ctx.restore();
+    ctx.strokeStyle='#ccc'; ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(PAD.l,PAD.t);ctx.lineTo(PAD.l,H-PAD.b);ctx.lineTo(W-PAD.r,H-PAD.b);ctx.stroke();
+
+    function pline(pts, col, dashed, lw) {
+      ctx.save(); ctx.beginPath(); ctx.rect(PAD.l,PAD.t,PW,PH); ctx.clip();
+      ctx.strokeStyle=col; ctx.lineWidth=lw||1.8; ctx.setLineDash(dashed?[7,4]:[]);
+      ctx.beginPath(); let first=true;
+      for(const pt of pts){
+        const x=sx(pt[1]), y=sy(pt[2]??0);
+        if(!isFinite(x)||!isFinite(y)){first=true;continue;}
+        first?ctx.moveTo(x,y):ctx.lineTo(x,y); first=false;
+      }
+      ctx.stroke(); ctx.setLineDash([]); ctx.restore();
+    }
+
+    pline(pe,'#e05',false);
+    pline(ph,'#27e',false);
+    pline(pr,'#1a3',false);
+    pline(ref,'#111',true,2.5);
+
+    document.getElementById('ee').textContent = fmt(maxErr(pe,ref));
+    document.getElementById('he').textContent = fmt(maxErr(ph,ref));
+    document.getElementById('re').textContent = fmt(maxErr(pr,ref));
+  }
+}
+
+window.addEventListener('load', draw);
+window.addEventListener('resize', draw);
+</script>
