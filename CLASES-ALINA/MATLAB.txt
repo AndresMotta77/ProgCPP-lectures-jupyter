@@ -1,0 +1,39 @@
+|==================== MATLAB ====================|
+| clc; clear; close all; → limpiar entorno       |
+| a = 5; → escalar                               |
+| v = [1 2 3 4]; → vector fila                   |
+| w = [1;2;3;4]; → vector columna                |
+| M = [1 2; 3 4]; → matriz 2x2                   |
+| zeros(3,3); → matriz de ceros                  |
+| ones(2,4); → matriz de unos                    |
+| eye(3); → matriz identidad                     |
+| rand(3); → matriz aleatoria                    |
+| size(M); → dimensiones                         |
+| length(v); → tamaño vector                     |
+| M(1,2); → acceder elemento                     |
+| M(:,1); → primera columna                      |
+| M(2,:); → segunda fila                         |
+| M'; → transpuesta                              |
+| det(M); → determinante                         |
+| inv(M); → inversa                              |
+| eig(M); → valores propios                      |
+_________________________________________________|
+__________________________________________________
+| plot(v); → gráfico simple                      |
+| x = linspace(0,h=10,100); → rango continuo     |
+| y = sin(x);                                    |
+| plot(x,y); → gráfica seno                      |
+| title('Grafica'); → título                     |
+| xlabel('x'); ylabel('y'); → etiquetas          |
+| grid on; → cuadrícula                          |
+| hold on; → superponer gráficas                 |
+| subplot(2,1,1); → múltiples gráficas           |
+| surf(peaks); → superficie 3D                   |
+| mesh(peaks); → malla 3D                        |
+|================================================|
+
+
+|==================== REGLA =====================|
+| *  /  ^  → álgebra matricial                   |
+| .* ./ .^ → operación elemento a elemento       |
+|================================================|

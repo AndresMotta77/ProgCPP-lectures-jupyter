@@ -1,0 +1,222 @@
+|================ TIPOS DE DATOS ================|
+| float → precisión simple (32 bits) |
+| double → precisión doble (64 bits) |
+|================================================|
+
+
+
+|================ VARIABLES =====================|
+| int a; |
+| double b = -9.87e-8; |
+| std::string Nombre = "Andres"; |
+| std::vector<double> v(10); → 10 datos |
+|================================================|
+
+
+
+|================ OPERADORES DE INCREMENTO =================|
+| x++ → POST-incremento |
+| Usa el valor actual y DESPUÉS suma 1 |
+| Ej: y = x++; → y recibe x, luego x = x + 1 |
+| |
+| ++x → PRE-incremento |
+| Primero suma 1 y LUEGO usa el valor |
+| Ej: y = ++x; → x = x + 1, luego y recibe x |
+| |
+| x-- → POST-decremento |
+| Usa el valor actual y DESPUÉS resta 1 |
+| |
+| --x → PRE-decremento |
+| Primero resta 1 y LUEGO usa el valor |
+|==========================================================|
+
+
+
+|================ FUNCIONES =====================|
+| Declaración: |
+| double average(double a, double b); |
+| |
+| Implementación: |
+| double average(double a, double b) { |
+| return (a + b) / 2; |
+| } |
+|================================================|
+
+
+
+|================ PROGRAMA COMPLETO =============|
+| #include <print> |
+| #include <cmath>
+| double average(double a, double b); |
+| |
+| int main() { |
+| double x{2.35}; |
+| double y{4.987}; |
+| double avg = average(x, y); |
+| std::print("avg: {0:20.16f}\n", avg); |
+| return 0; |
+| } |
+|================================================|
+
+
+
+|================ COMPILAR ======================|
+| g++ Nombre.cpp -o ejecutable |
+|================================================|
+
+
+
+|================ EJECUTAR ======================|
+| ./ejecutable |
+|================================================|
+
+
+
+|================ GUARDAR SALIDA ================|
+| ./a.out >> datos.txt |
+|================================================|
+
+
+|================ Use IF=========================|
+if (condition 1) {
+  // perform action 1
+} else if (condition2 ) {
+  // perform action 2
+} else {
+  // perform action 3   
+}
+|================================================|
+
+
+
+|================ Use FOR =======================|
+for (initialization; condition; change) { … }
+|================================================|
+
+
+
+|================ Use While, primero condicion luego hace ================|
+init; 
+while (condition) { … ; change; }
+|=========================================================================|
+
+
+|================ Ejecuta una vez, luego pone la condicion ================|
+do { … } while (condition);
+|==========================================================================|
+
+
+
+|================ ARGUMENTOS MAIN ===============|
+| int main(int argc, char **argv) |
+| |
+| argc → cantidad de argumentos |
+| (incluye el nombre del programa) |
+| |
+| argv → arreglo de strings |
+| argv[0] → nombre del programa |
+| argv[1], argv[2]... → argumentos |
+| |
+| char **argv → lista de textos |
+| argv[i] → string |
+| argv[i][j] → carácter |
+|================================================|
+
+
+
+|================ CONVERSIÓN ====================|
+| std::stoi → string → int |
+| |
+| Ejemplo: |
+| int a = std::stoi(argv[1]); |
+| int b = std::stoi(argv[2]); |
+| |
+| Uso: |
+| ./a.out 10 20 |
+|================================================|
+
+
+
+|================ ALCANCE (SCOPE) ===============|
+| int main() { |
+| int n = 10;        // n en main |
+| |
+| for(int i = 0; i < 3; i++) { |
+| int n = 5;     // n DIFERENTE (solo en el for) |
+| } |
+| |
+| // aquí n sigue siendo 10 |
+| } |
+|================================================|
+
+
+|==================SALTO DE LINEA======================|
+|  Alt+92 = \
+|  \n Cambio de linea
+|======================================================|
+
+
+|==================DUPLICA PROGRAMA======================|
+| cp programa.cpp nuevoprograma.cpp |
+|========================================================|
+
+
+
+
+
+
+|================ HEADER (.h) ===================|   |================ SOURCE (.cpp) =================|
+| bool is_prime(int n);                         |    | #include "primes.h"                          |
+| void print_sexy_primes(int a, int b);         |    |                                              |
+|                                               |    | bool is_prime(int n) { ... }                 |
+|
+|_____________________________________________ _|     | void print_sexy_primes(int a, int b) { ... }|
+| Solo dice qué funciones existen               |    |______________________________________________|
+|===============================================|    | Aquí va el código real                       |
+                                                     |==============================================|
+
+
+
+|================ MAIN ==========================|   |================ COMPILAR ======================|
+| #include "primes.h"                           |   | g++ primes.cpp main.cpp -o prog              |
+|                                               |   |                                              |
+| int main(int argc, char **argv) {             |   |                                              |
+| int min = std::stoi(argv[1]);                 |   |                                              |
+| int max = std::stoi(argv[2]);                 |   |                                              |
+| print_sexy_primes(min, max);                  |   |                                              |
+| return 0;                                     |   |                                              |
+| }                                             |   |                                              |
+|===============================================|   |==============================================|
+
+
+_______________________________________________________________________________________________________________
+
+
+
+|=========== DERIVADAS NUMÉRICAS ===========|   | Error                                      |
+|                                           |   |   ^                                        |
+| Forward                                   |   |   | \                                   /  |
+| f'(x) ≈ (f(x+h) - f(x)) / h               |   |   |  \          Error Total            /   |
+| Error: O(h)                               |   |   |   \                               /    |  <-- PARTE MATEMÁTICA
+| h→h/2 ⇒ error/2  (mejora lenta)           |   |   |    \                             /     |       (Truncamiento)
+|-------------------------------------------|   |   |     \                           /      |        Error ~ h²
+| Central                                   |   |   |      \                         /       |
+| f'(x) ≈ (f(x+h) - f(x-h)) / (2h)          |   |   |       \       h Óptimo        /        |
+| Error: O(h²)                              |   |   |        \         |           /         |
+| h→h/2 ⇒ error/4 🔥 (mejora rápida)       |   |   |  PARTE  \        v          /          |
+|===========================================|   |   | COMPUTA- \_____( X )_______/          |
+|                                           |   |   | CIONAL                              |
+|                                           |   |   | (Redondeo)                          |
+|                                           |   |   | Error ~ ε/h                         |
+|                                           |   |   +--------------------------------------------> h (Paso de derivación)
+
+
+
+
+|=========== EXPANSIÓN (TIEMPO) ===================|
+
+f(t+h) = f(t) + f'(t)·h
+----------------------------------------------------
+Tiempo futuro = Tiempo presente + (derivada × paso)
+|==================================================|
+  
